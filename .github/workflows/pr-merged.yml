@@ -8,6 +8,10 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/SManuelDv/projects/8
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: alex-page/github-project-automation-plus@v0.8.3
         with:
           project: Arbeitsplan Development
