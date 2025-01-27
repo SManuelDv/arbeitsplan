@@ -1,9 +1,9 @@
 ---
-name: Feature request
-about: Sugira uma ideia para o projeto
-title: 'feat: '
-labels: enhancement
-assignees: ''
+name: "✨ Feature Request"
+about: "Sugira uma ideia para o projeto"
+title: "feat: "
+labels: ["enhancement"]
+assignees: ""
 ---
 
 ## Descrição da Feature

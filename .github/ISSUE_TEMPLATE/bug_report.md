@@ -1,9 +1,9 @@
 ---
-name: Bug report
-about: Reporte um bug para nos ajudar a melhorar
-title: 'bug: '
-labels: bug
-assignees: ''
+name: "🐛 Bug Report"
+about: "Reporte um bug para nos ajudar a melhorar"
+title: "bug: "
+labels: ["bug"]
+assignees: ""
 ---
 
 ## Descrição do Bug

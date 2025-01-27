@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Arbeitsplan Documentation
+  - name: "📚 Arbeitsplan Documentation"
     url: https://github.com/SManuelDv/arbeitsplan/blob/master/README.md
-    about: Consulte nossa documentação antes de criar uma issue
+    about: "Consulte nossa documentação"
   - name: Feature Request Template
     url: https://github.com/SManuelDv/arbeitsplan/issues/new?template=feature_request.md
     about: Use este template para sugerir uma nova funcionalidade
