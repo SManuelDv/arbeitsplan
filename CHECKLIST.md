@@ -2,7 +2,33 @@
 
 ![Randstad Logo](./assets/randstad-logo.png)
 
+## ✅ Fase 1: Ambiente de Desenvolvimento
+
+- [x] Setup Inicial
+  - [x] Vite + React + TypeScript
+  - [x] TailwindCSS configurado
+  - [x] ESLint + Prettier funcionando
+  - [x] Husky + Commitlint ativos
+- [x] Estrutura Base
+  - [x] Componentes base criados
+  - [x] Estilos base definidos
+  - [x] Rotas configuradas
+- [x] Qualidade
+  - [x] Linting automático
+  - [x] Formatação automática
+  - [x] Commits padronizados
+  - [x] Servidor de desenvolvimento funcionando
+
+## 🔄 Fase 2: Backend (Próxima)
+
+- [ ] Supabase
+  - [ ] Criar projeto
+  - [ ] Configurar autenticação
+  - [ ] Definir esquema
+  - [ ] Configurar políticas
+
 ## 1. Preparação Inicial
+
 - [ ] Criar repositório Git
 - [ ] Configurar ambiente de desenvolvimento
 - [ ] Criar documentação base
@@ -29,6 +55,7 @@
     - [ ] Configurar bot de notificações
 
 ## 2. Backend (Supabase)
+
 - [ ] Criar projeto gratuito
 - [ ] Configurar autenticação:
   - [ ] Email/senha
@@ -45,6 +72,7 @@
 - [ ] Configurar notificações
 
 ## 3. Frontend
+
 - [ ] Criar projeto Vite
 - [ ] Configurar TailwindCSS
 - [ ] Configurar temas (claro/escuro)
@@ -58,6 +86,7 @@
   - [ ] recharts
 
 ## 4. Design System
+
 - [ ] Implementar temas:
   - [ ] Tema claro
   - [ ] Tema escuro
@@ -76,6 +105,7 @@
   - [ ] Loading states
 
 ## 5. Páginas
+
 - [ ] Autenticação:
   - [ ] Login
   - [ ] Recuperar senha
@@ -103,6 +133,7 @@
   - [ ] Notificações
 
 ## 6. Funcionalidades
+
 - [ ] Sistema de autenticação completo
 - [ ] Gestão de usuários:
   - [ ] CRUD completo
@@ -122,6 +153,7 @@
   - [ ] Sistema
 
 ## 7. Testes
+
 - [ ] Testes unitários
 - [ ] Testes de integração
 - [ ] Testes E2E
@@ -129,6 +161,7 @@
 - [ ] Testes de responsividade
 
 ## 8. Deploy e CI/CD
+
 - [ ] Configurar CI/CD na Vercel
 - [ ] Deploy automático
 - [ ] Variáveis de ambiente
@@ -137,4 +170,4 @@
 - [ ] Integrações:
   - [ ] GitHub Actions com Discord
   - [ ] Vercel com Discord
-  - [ ] Supabase com Discord 
+  - [ ] Supabase com Discord
