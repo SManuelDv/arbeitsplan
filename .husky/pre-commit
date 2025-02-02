@@ -1,2 +1,15 @@
 #!/usr/bin/env sh
+
+# Verifica se o commit está sendo feito pelo sistema de backup
+if [ -n "$BACKUP_IN_PROGRESS" ]; then
+  exit 0
+fi
+
+# Define a variável de ambiente para indicar que o backup está em andamento
+export BACKUP_IN_PROGRESS=1
+
+# Executa o backup
 npx tsx scripts/project-guard.ts backup
+
+# Remove a variável de ambiente
+unset BACKUP_IN_PROGRESS
