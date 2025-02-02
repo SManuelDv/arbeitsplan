@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-02-02T15-00-40-013Z",
+  "hash": "525126b9ca94d56acadfe700f63db0041527be1f",
+  "files": [
+    "package.json",
+    "package-lock.json",
+    "vite.config.ts",
+    "tailwind.config.js",
+    "tsconfig.json",
+    ".env"
+  ]
+}

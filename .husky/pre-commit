@@ -1,3 +1,2 @@
-#!/bin/sh
-
-npm run lint-staged
+#!/usr/bin/env sh
+npx tsx scripts/project-guard.ts backup
