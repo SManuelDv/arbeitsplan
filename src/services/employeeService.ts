@@ -5,10 +5,15 @@ export const EmployeeSchema = z.object({
   id: z.string().uuid().optional(),
   full_name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   email: z.string().email('Email inválido'),
+  phone: z.string().min(8, 'Telefone deve ter no mínimo 8 dígitos').optional(),
   department: z.string().min(2, 'Departamento deve ter no mínimo 2 caracteres'),
   team: z.enum(['A', 'B', 'C', 'D'], {
     errorMap: () => ({ message: 'Time deve ser A, B, C ou D' })
   }),
+  role: z.enum(['admin', 'manager', 'employee'], {
+    errorMap: () => ({ message: 'Função deve ser admin, manager ou employee' })
+  }),
+  contract_start: z.string().min(1, 'Data de início do contrato é obrigatória'),
   active: z.boolean().optional().default(true),
   created_at: z.string().optional(),
   created_by: z.string().uuid().nullable()
@@ -26,7 +31,12 @@ class EmployeeService {
 
       if (error) throw new Error(error.message)
       
-      const employees = data as Employee[]
+      // Transformar os dados antes da validação
+      const employees = (data as any[]).map(employee => ({
+        ...employee,
+        role: employee.role === 'Técnico de Laboratório' ? 'employee' : employee.role
+      }))
+      
       return EmployeeSchema.array().parse(employees)
     } catch (error: unknown) {
       console.error('Erro ao listar funcionários:', error)
@@ -44,7 +54,13 @@ class EmployeeService {
 
       if (error) throw new Error(error.message)
       
-      return EmployeeSchema.parse(data)
+      // Transformar os dados antes da validação
+      const employee = {
+        ...data,
+        role: data.role === 'Técnico de Laboratório' ? 'employee' : data.role
+      }
+      
+      return EmployeeSchema.parse(employee)
     } catch (error: unknown) {
       console.error('Erro ao buscar funcionário:', error)
       throw new Error('Não foi possível carregar os dados do funcionário')
@@ -71,7 +87,7 @@ class EmployeeService {
     } catch (error: unknown) {
       console.error('Erro ao criar funcionário:', error)
       if (error instanceof z.ZodError) {
-        throw new Error('Dados inválidos: ' + error.errors.map((e: z.ZodError) => e.message).join(', '))
+        throw new Error('Dados inválidos: ' + error.issues.map(e => e.message).join(', '))
       }
       throw new Error('Não foi possível criar o funcionário')
     }
@@ -95,7 +111,7 @@ class EmployeeService {
     } catch (error: unknown) {
       console.error('Erro ao atualizar funcionário:', error)
       if (error instanceof z.ZodError) {
-        throw new Error('Dados inválidos: ' + error.errors.map((e: z.ZodError) => e.message).join(', '))
+        throw new Error('Dados inválidos: ' + error.issues.map(e => e.message).join(', '))
       }
       throw new Error('Não foi possível atualizar o funcionário')
     }

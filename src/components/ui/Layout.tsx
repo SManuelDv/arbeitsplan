@@ -39,7 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16">
             <div className="flex space-x-4 items-center">
-              <NavItem to="/">Dashboard</NavItem>
+              <NavItem to="/">ArbeitsPlan</NavItem>
               <NavItem to="/employees" adminOnly>Funcionários</NavItem>
               <NavItem to="/shifts" adminOnly>Gestão de Turnos</NavItem>
             </div>

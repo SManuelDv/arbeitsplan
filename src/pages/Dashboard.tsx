@@ -36,7 +36,7 @@ export function Dashboard() {
         {/* Card de Funcionários */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Funcionários
+            ArbeitsPlan
           </h3>
           <p className="text-3xl font-bold text-blue-600">
             {employees.length}
