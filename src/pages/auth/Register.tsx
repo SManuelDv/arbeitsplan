@@ -1,64 +1,138 @@
 import React, { useState } from 'react'
-import { supabase } from '@/config/supabaseClient'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '../../config/supabaseClient'
+import { validateEmail, validatePassword, validateFullName } from '../../utils/validation'
+import { Feedback } from '../../components/ui/Feedback'
 
 export function Register() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<string[]>([])
+  const [success, setSuccess] = useState('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    setErrors([])
+    setSuccess('')
+  }
+
+  const validateForm = () => {
+    const allErrors: string[] = []
+
+    // Validar nome completo
+    const nameErrors = validateFullName(formData.fullName)
+    allErrors.push(...nameErrors)
+
+    // Validar email
+    const emailErrors = validateEmail(formData.email)
+    allErrors.push(...emailErrors)
+
+    // Validar senha
+    const passwordErrors = validatePassword(formData.password)
+    allErrors.push(...passwordErrors)
+
+    // Validar confirmação de senha
+    if (formData.password !== formData.confirmPassword) {
+      allErrors.push('As senhas não coincidem')
+    }
+
+    setErrors(allErrors)
+    return allErrors.length === 0
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    if (password !== confirmPassword) {
-      setError('As senhas não coincidem')
-      setLoading(false)
+    
+    if (!validateForm()) {
       return
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
+      setLoading(true)
+      
+      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          data: {
+            full_name: formData.fullName,
+            role: 'normal'
+          }
         }
       })
 
-      if (error) throw error
+      if (signUpError) {
+        throw signUpError
+      }
 
-      navigate('/login', { 
-        state: { 
-          message: 'Verifique seu email para confirmar o registro' 
-        } 
-      })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao registrar')
+      if (user) {
+        setSuccess('Registro realizado com sucesso! Verifique seu email para confirmar sua conta.')
+        setTimeout(() => {
+          navigate('/auth/login')
+        }, 3000)
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('already registered')) {
+          setErrors(['Este email já está registrado'])
+        } else {
+          setErrors(['Ocorreu um erro ao fazer o registro. Tente novamente.'])
+        }
+      }
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Registro
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Crie sua conta
           </h2>
         </div>
+
+        {errors.length > 0 && (
+          <Feedback
+            type="error"
+            message={errors}
+            onClose={() => setErrors([])}
+          />
+        )}
+
+        {success && (
+          <Feedback
+            type="success"
+            message={success}
+            onClose={() => setSuccess('')}
+          />
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
-          )}
           <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="fullName" className="sr-only">
+                Nome Completo
+              </label>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                required
+                className="appearance-none rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Nome Completo"
+                value={formData.fullName}
+                onChange={handleChange}
+              />
+            </div>
             <div>
               <label htmlFor="email" className="sr-only">
                 Email
@@ -67,11 +141,12 @@ export function Register() {
                 id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 required
-                className="appearance-none rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
             <div>
@@ -82,11 +157,12 @@ export function Register() {
                 id="password"
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
               />
             </div>
             <div>
@@ -97,11 +173,12 @@ export function Register() {
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
+                autoComplete="new-password"
                 required
-                className="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-b-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Confirmar Senha"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -110,10 +187,21 @@ export function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               {loading ? 'Registrando...' : 'Registrar'}
             </button>
+          </div>
+
+          <div className="text-sm text-center">
+            <Link
+              to="/auth/login"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Já tem uma conta? Entre aqui
+            </Link>
           </div>
         </form>
       </div>

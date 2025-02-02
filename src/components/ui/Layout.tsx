@@ -6,11 +6,15 @@ import { supabase } from '@/config/supabaseClient'
 interface NavItemProps {
   to: string
   children: React.ReactNode
+  adminOnly?: boolean
 }
 
-function NavItem({ to, children }: NavItemProps) {
+function NavItem({ to, children, adminOnly = false }: NavItemProps) {
   const location = useLocation()
+  const { isAdmin } = useAuthContext()
   const isActive = location.pathname === to
+
+  if (adminOnly && !isAdmin) return null
 
   return (
     <Link
@@ -27,7 +31,7 @@ function NavItem({ to, children }: NavItemProps) {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthContext()
+  const { user, profile, isAdmin } = useAuthContext()
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -36,13 +40,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex justify-between h-16">
             <div className="flex space-x-4 items-center">
               <NavItem to="/">Dashboard</NavItem>
-              <NavItem to="/employees">Funcionários</NavItem>
-              <NavItem to="/shifts">Gestão de Turnos</NavItem>
+              <NavItem to="/employees" adminOnly>Funcionários</NavItem>
+              <NavItem to="/shifts" adminOnly>Gestão de Turnos</NavItem>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600 dark:text-gray-300">
-                {user?.email}
-              </span>
+              <div className="text-sm text-gray-600 dark:text-gray-300">
+                <div>{profile?.full_name}</div>
+                <div className="text-xs opacity-75">
+                  {isAdmin ? 'Administrador' : 'Usuário Normal'}
+                </div>
+              </div>
               <button
                 onClick={() => supabase.auth.signOut()}
                 className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
