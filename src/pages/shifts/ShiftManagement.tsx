@@ -5,22 +5,14 @@ import { useQuery } from '@tanstack/react-query'
 import { employeeService } from '@/services/employeeService'
 import { shiftService, type Shift } from '@/services/shiftService'
 import { ShiftEditModal } from '@/components/shifts/ShiftEditModal'
+import { ShiftCell } from '@/components/shifts/ShiftCell'
 
-export type ShiftType = '🔴' | '🟢' | '🔵' | '⚪'
-export type MissionType = 'ZK' | 'Lab Messung' | 'K' | 'U' | 'Lab Koordinator' | string
-
-interface ShiftData {
-  date: Date
-  shift: ShiftType
-  mission: MissionType
-}
-
-export interface EmployeeShift {
+interface EmployeeWithShifts {
   id: string
-  name: string
-  department: string
-  team: 'A' | 'B' | 'C' | 'D'
-  shifts: Record<string, ShiftData>
+  full_name: string
+  team: string
+  role: string
+  shifts: Record<string, Shift>
 }
 
 interface EditModalState {
@@ -30,18 +22,9 @@ interface EditModalState {
   currentShift?: Shift
 }
 
-interface EmployeeWithShifts {
-  id: string
-  full_name: string
-  team: string
-  shifts: Record<string, Shift>
-}
-
 export function ShiftManagement() {
   const [filter, setFilter] = useState({
     name: '',
-    shift: '' as Shift['shift_type'] | '',
-    date: '',
     team: ''
   })
 
@@ -51,12 +34,16 @@ export function ShiftManagement() {
     date: ''
   })
 
-  // Gerar datas dos próximos 15 dias
-  const dates = Array.from({ length: 15 }, (_, i) => {
+  // Gerar datas dos próximos 30 dias
+  const dates = Array.from({ length: 30 }, (_, i) => {
     const date = addDays(new Date(), i)
     return {
       full: date,
-      formatted: format(date, 'EEE. dd.MM.yyyy', { locale: ptBR })
+      formatted: format(date, 'yyyy-MM-dd'),
+      display: {
+        weekday: format(date, 'EEE', { locale: ptBR }),
+        date: format(date, 'dd/MM', { locale: ptBR })
+      }
     }
   })
 
@@ -70,8 +57,8 @@ export function ShiftManagement() {
   const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
     queryKey: ['shifts'],
     queryFn: () => shiftService.getShifts(
-      format(dates[0].full, 'yyyy-MM-dd'),
-      format(dates[dates.length - 1].full, 'yyyy-MM-dd')
+      dates[0].formatted,
+      dates[dates.length - 1].formatted
     )
   })
 
@@ -108,99 +95,84 @@ export function ShiftManagement() {
 
   if (isLoadingEmployees || isLoadingShifts) {
     return (
-      <div className="p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-12 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-          Gestão de Turnos
-        </h1>
+    <div className="px-4 sm:px-6 lg:px-8">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-base font-semibold leading-6 text-gray-900">
+            Gestão de Turnos
+          </h1>
+        </div>
       </div>
 
-      <div className="flex gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Buscar por nome..."
-          value={filter.name}
-          onChange={(e) => setFilter(prev => ({ ...prev, name: e.target.value }))}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-        />
-        <select
-          value={filter.team}
-          onChange={(e) => setFilter(prev => ({ ...prev, team: e.target.value }))}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          aria-label="Filtrar por time"
-        >
-          <option value="">Todos os Times</option>
-          <option value="A">Time A</option>
-          <option value="B">Time B</option>
-          <option value="C">Time C</option>
-          <option value="D">Time D</option>
-        </select>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                Funcionário
-              </th>
-              {dates.map(date => (
-                <th
-                  key={date.formatted}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                >
-                  {date.formatted}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredEmployees.map(employee => (
-              <tr key={employee.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">
-                    {employee.full_name}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Time {employee.team}
-                  </div>
-                </td>
-                {dates.map(date => {
-                  const formattedDate = format(date.full, 'yyyy-MM-dd')
-                  const shift = employee.shifts[formattedDate]
-                  return (
-                    <td
-                      key={date.formatted}
-                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
-                      onClick={() => handleCellClick(employee.id, formattedDate, shift)}
+      <div className="mt-8 flow-root">
+        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full py-2 align-middle">
+            <div className="overflow-hidden">
+              <table className="min-w-full border-separate border-spacing-0">
+                <thead>
+                  <tr>
+                    <th 
+                      scope="col" 
+                      className="sticky left-0 z-10 bg-white py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 lg:pl-8 min-w-[250px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                     >
-                      {shift ? (
-                        <div className="flex flex-col items-center">
-                          <span className="text-2xl">{shift.shift_type}</span>
-                          <span className="text-xs">{shift.mission}</span>
+                      <div className="text-base">Funcionário</div>
+                    </th>
+                    {dates.map(date => (
+                      <th
+                        key={date.formatted}
+                        scope="col"
+                        className="p-2 text-center text-sm font-semibold text-gray-900 min-w-[6rem] bg-white"
+                      >
+                        <div className="text-xs sm:text-sm uppercase tracking-wider">
+                          {date.display.weekday}
                         </div>
-                      ) : null}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        <div className="text-xs sm:text-sm font-bold mt-0.5">
+                          {date.display.date}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white">
+                  {filteredEmployees.map((employee, index) => (
+                    <tr key={employee.id} className="even:bg-gray-50/80">
+                      <td 
+                        className={`
+                          sticky left-0 z-10 whitespace-nowrap py-3 pl-4 pr-3 sm:pl-6 lg:pl-8
+                          shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]
+                          ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/80'}
+                        `}
+                      >
+                        <div className="text-base font-semibold text-gray-900">
+                          {employee.full_name}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          Time {employee.team} • {employee.role}
+                        </div>
+                      </td>
+                      {dates.map(date => (
+                        <ShiftCell
+                          key={date.formatted}
+                          employeeId={employee.id}
+                          date={date.formatted}
+                          shift={employee.shifts[date.formatted]}
+                          onEdit={handleCellClick}
+                        />
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
 
       <ShiftEditModal

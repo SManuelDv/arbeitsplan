@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { employeeService, type Employee } from '@/services/employeeService'
@@ -10,7 +10,10 @@ export function EmployeeForm() {
   const isEditing = Boolean(id)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState<Partial<Employee>>({
-    department: '',
+    department: undefined,
+    role: undefined,
+    team: 'A',
+    active: true
   })
 
   const { data: employee, isLoading: isLoadingEmployee } = useQuery({
@@ -18,6 +21,12 @@ export function EmployeeForm() {
     queryFn: () => (id ? employeeService.getById(id) : null),
     enabled: isEditing
   })
+
+  useEffect(() => {
+    if (employee) {
+      setFormData(employee)
+    }
+  }, [employee])
 
   const mutation = useMutation({
     mutationFn: (data: Omit<Employee, 'id' | 'created_at'>) => {
@@ -38,82 +47,77 @@ export function EmployeeForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
-    const formElement = e.currentTarget
-    const formData = new FormData(formElement)
     
-    const departmentValue = formData.get('department_other')?.toString() || formData.get('department')?.toString() || ''
+    const form = e.currentTarget
+    const formData = new FormData(form)
     
     const data = {
       full_name: formData.get('full_name')?.toString() || '',
       email: formData.get('email')?.toString() || '',
-      phone: formData.get('phone')?.toString() || undefined,
-      department: departmentValue,
-      team: formData.get('team')?.toString() as 'A' | 'B' | 'C' | 'D',
-      role: formData.get('role')?.toString() as 'admin' | 'manager' | 'employee',
+      phone: formData.get('phone')?.toString() || null,
+      department: formData.get('department')?.toString() as Employee['department'],
+      team: formData.get('team')?.toString() as Employee['team'] || 'A',
+      role: formData.get('role')?.toString() as Employee['role'],
       contract_start: formData.get('contract_start')?.toString() || '',
-      active: formData.get('active') === 'true',
+      active: Boolean(formData.get('active')),
       created_by: null
     }
 
     mutation.mutate(data)
   }
 
-  const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, department: e.target.value }))
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }))
   }
 
-  if (isEditing && isLoadingEmployee) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-        <div className="space-y-3">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-200 rounded"></div>
-          ))}
-        </div>
-      </div>
-    )
+  if (isLoadingEmployee) {
+    return <div>Carregando...</div>
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-lg font-medium text-gray-900 dark:text-white">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-base font-semibold leading-6 text-gray-900">
             {isEditing ? 'Editar Funcionário' : 'Novo Funcionário'}
           </h1>
         </div>
+      </div>
 
+      <form onSubmit={handleSubmit} className="mt-8 space-y-6">
         {error && (
-          <div className="mx-6 mt-4 p-3 text-xs text-red-700 bg-red-50 rounded-md border border-red-200">
-            {error}
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">{error}</h3>
+              </div>
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="full_name"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Nome Completo
+        <div className="space-y-6 bg-white px-4 py-5 sm:p-6">
+          <div className="grid grid-cols-6 gap-6">
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="full_name" className="block text-sm font-medium leading-6 text-gray-900">
+                Nome completo
               </label>
               <input
                 type="text"
                 name="full_name"
                 id="full_name"
                 required
-                defaultValue={employee?.full_name}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.full_name || ''}
+                onChange={handleInputChange}
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                 Email
               </label>
               <input
@@ -121,161 +125,151 @@ export function EmployeeForm() {
                 name="email"
                 id="email"
                 required
-                defaultValue={employee?.email}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.email || ''}
+                onChange={handleInputChange}
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
                 Telefone
               </label>
               <input
                 type="tel"
                 name="phone"
                 id="phone"
-                placeholder="(00) 00000-0000"
-                defaultValue={employee?.phone}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.phone || ''}
+                onChange={handleInputChange}
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="contract_start"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="department" className="block text-sm font-medium leading-6 text-gray-900">
+                Departamento
+              </label>
+              <select
+                id="department"
+                name="department"
+                required
+                className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.department || ''}
+                onChange={handleInputChange}
               >
-                Data de Início
+                <option value="">Selecione um departamento</option>
+                <option value="CasePack">CasePack</option>
+                <option value="Labor">Labor</option>
+                <option value="PrepCenter">PrepCenter</option>
+                <option value="Service">Service</option>
+                <option value="Wipes">Wipes</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="team" className="block text-sm font-medium leading-6 text-gray-900">
+                Time
+              </label>
+              <select
+                id="team"
+                name="team"
+                required
+                className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.team || 'A'}
+                onChange={handleInputChange}
+              >
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+              </select>
+            </div>
+
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="role" className="block text-sm font-medium leading-6 text-gray-900">
+                Função
+              </label>
+              <select
+                id="role"
+                name="role"
+                required
+                className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.role || ''}
+                onChange={handleInputChange}
+              >
+                <option value="">Selecione uma função</option>
+                <option value="CP Verpacker">CP Verpacker</option>
+                <option value="fU">fU</option>
+                <option value="K">K</option>
+                <option value="Lab Koordinator">Lab Koordinator</option>
+                <option value="Lab Messung">Lab Messung</option>
+                <option value="PC SAP">PC SAP</option>
+                <option value="PC Spleisser">PC Spleisser</option>
+                <option value="PC Training">PC Training</option>
+                <option value="SV AGM">SV AGM</option>
+                <option value="SV Battery">SV Battery</option>
+                <option value="SV CSX">SV CSX</option>
+                <option value="U">U</option>
+                <option value="WW Bevorrater">WW Bevorrater</option>
+                <option value="WW CaseLoader">WW CaseLoader</option>
+                <option value="ZK">ZK</option>
+              </select>
+            </div>
+
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="contract_start" className="block text-sm font-medium leading-6 text-gray-900">
+                Data de início
               </label>
               <input
                 type="date"
                 name="contract_start"
                 id="contract_start"
                 required
-                defaultValue={employee?.contract_start}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formData.contract_start || ''}
+                onChange={handleInputChange}
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="department"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Departamento
-              </label>
-              {formData.department === 'Outros' ? (
-                <input
-                  type="text"
-                  name="department_other"
-                  id="department_other"
-                  required
-                  placeholder="Especifique o departamento"
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                />
-              ) : (
-                <select
-                  name="department"
-                  id="department"
-                  required
-                  value={formData.department || employee?.department || ''}
-                  onChange={handleDepartmentChange}
-                  className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="">Selecione um departamento</option>
-                  <option value="Laboratório">Laboratório</option>
-                  <option value="Empacotamento">Empacotamento</option>
-                  <option value="Outros">Outros</option>
-                </select>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="team"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Time
-              </label>
-              <select
-                name="team"
-                id="team"
-                required
-                defaultValue={employee?.team}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="A">Time A</option>
-                <option value="B">Time B</option>
-                <option value="C">Time C</option>
-                <option value="D">Time D</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Função
-              </label>
-              <select
-                name="role"
-                id="role"
-                required
-                defaultValue={employee?.role}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="employee">Funcionário</option>
-                <option value="manager">Gestor</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="active"
-                className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
-                Status
-              </label>
-              <select
-                name="active"
-                id="active"
-                required
-                defaultValue={employee?.active?.toString()}
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="true">Ativo</option>
-                <option value="false">Inativo</option>
-              </select>
+            <div className="col-span-6">
+              <div className="relative flex items-start">
+                <div className="flex h-6 items-center">
+                  <input
+                    id="active"
+                    name="active"
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                    checked={formData.active}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="ml-3 text-sm leading-6">
+                  <label htmlFor="active" className="font-medium text-gray-900">
+                    Ativo
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={() => navigate('/employees')}
-              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-            >
-              {mutation.isPending
-                ? 'Salvando...'
-                : isEditing
-                ? 'Atualizar'
-                : 'Criar'}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
+          <button
+            type="button"
+            className="mr-3 inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            onClick={() => navigate('/employees')}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            {isEditing ? 'Salvar' : 'Criar'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 } 

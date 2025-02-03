@@ -6,9 +6,25 @@ export const ShiftSchema = z.object({
   employee_id: z.string().uuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD'),
   shift_type: z.enum(['🔴', '🟢', '🔵', '⚪']),
-  mission: z.enum(['ZK', 'Lab Messung', 'K', 'U', 'Lab Koordinator'], {
-    errorMap: () => ({ message: 'Missão deve ser ZK, Lab Messung, K, U ou Lab Koordinator' })
-  }).nullable().transform(val => val || 'ZK'),
+  mission: z.enum([
+    'CP Verpacker',
+    'fU',
+    'K',
+    'Lab Koordinator',
+    'Lab Messung',
+    'PC SAP',
+    'PC Spleisser',
+    'PC Training',
+    'SV AGM',
+    'SV Battery',
+    'SV CSX',
+    'U',
+    'WW Bevorrater',
+    'WW CaseLoader',
+    'ZK'
+  ], {
+    errorMap: () => ({ message: 'Função inválida' })
+  }).nullable(),
   created_at: z.string().optional()
 })
 
@@ -24,7 +40,10 @@ class ShiftService {
         .lte('date', endDate)
         .order('date')
 
-      if (error) throw new Error(error.message)
+      if (error) {
+        console.error('Erro ao buscar turnos:', error)
+        throw new Error(error.message)
+      }
       
       const shifts = data as Shift[]
       return ShiftSchema.array().parse(shifts)
@@ -45,7 +64,10 @@ class ShiftService {
         .select()
         .single()
 
-      if (error) throw new Error(error.message)
+      if (error) {
+        console.error('Erro ao criar turno:', error)
+        throw new Error(error.message)
+      }
       
       return ShiftSchema.parse(data)
     } catch (error) {
@@ -69,7 +91,10 @@ class ShiftService {
         .select()
         .single()
 
-      if (error) throw new Error(error.message)
+      if (error) {
+        console.error('Erro ao atualizar turno:', error)
+        throw new Error(error.message)
+      }
       
       return ShiftSchema.parse(data)
     } catch (error) {
@@ -88,7 +113,10 @@ class ShiftService {
         .delete()
         .eq('id', id)
 
-      if (error) throw new Error(error.message)
+      if (error) {
+        console.error('Erro ao excluir turno:', error)
+        throw new Error(error.message)
+      }
     } catch (error) {
       console.error('Erro ao excluir turno:', error)
       throw new Error('Não foi possível excluir o turno')
@@ -105,7 +133,10 @@ class ShiftService {
         .lte('date', endDate)
         .order('date')
 
-      if (error) throw new Error(error.message)
+      if (error) {
+        console.error('Erro ao buscar turnos do funcionário:', error)
+        throw new Error(error.message)
+      }
       
       const shifts = data as Shift[]
       return ShiftSchema.array().parse(shifts)

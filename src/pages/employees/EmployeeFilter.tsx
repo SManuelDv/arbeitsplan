@@ -58,25 +58,32 @@ export function EmployeeFilter({ onFilterChange }: FilterProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Departamento</label>
+              <label htmlFor="filter-department" className="block text-sm font-medium text-gray-700">Departamento</label>
               <select
+                id="filter-department"
                 value={filters.department}
                 onChange={(e) => handleFilterChange('department', e.target.value)}
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                aria-label="Filtrar por departamento"
               >
                 <option value="">Todos</option>
-                <option value="Laboratório">Laboratório</option>
-                <option value="Empacotamento">Empacotamento</option>
-                <option value="Outros">Outros</option>
+                <option value="CasePack">CasePack</option>
+                <option value="Labor">Labor</option>
+                <option value="PrepCenter">PrepCenter</option>
+                <option value="Service">Service</option>
+                <option value="Wipes">Wipes</option>
+                <option value="Outro">Outro</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Time</label>
+              <label htmlFor="filter-team" className="block text-sm font-medium text-gray-700">Time</label>
               <select
+                id="filter-team"
                 value={filters.team}
                 onChange={(e) => handleFilterChange('team', e.target.value)}
                 className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                aria-label="Filtrar por time"
               >
                 <option value="">Todos</option>
                 <option value="A">Time A</option>
