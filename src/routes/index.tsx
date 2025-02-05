@@ -8,7 +8,7 @@ import { AuthCallback } from '../pages/auth/AuthCallback'
 import { Dashboard } from '../pages/Dashboard'
 import { Employees } from '../pages/employees/Employees'
 import { EmployeeForm } from '../pages/employees/EmployeeForm'
-import { Shifts } from '../pages/shifts/Shifts'
+import { ShiftManagement } from '../pages/shifts/ShiftManagement'
 import { useAuthContext } from '../providers/AuthProvider'
 
 // Componente de loading
@@ -51,7 +51,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 // Configuração das rotas
-export const router = createBrowserRouter([
+const router = createBrowserRouter([
   // Rotas públicas
   {
     path: '/auth',
@@ -112,7 +112,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'shifts',
-        element: <Shifts />
+        element: <ShiftManagement />
       }
     ]
   },
@@ -122,7 +122,12 @@ export const router = createBrowserRouter([
     path: '*',
     element: <Navigate to="/" />
   }
-])
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+})
 
 // Componente principal de rotas
 export function AppRoutes() {

@@ -54,14 +54,16 @@
   - Resumo de turnos
   - Notificações
 - Gestão de turnos:
-  - Visualização diária
-  - Visualização semanal
-  - Visualização mensal
-  - Plano anual completo
+  - Sistema de cores intuitivo
+  - Auto-save de alterações
+  - Filtros avançados
+  - Indicadores visuais
+  - Modal de edição rápida
 - Sistema de alterações:
   - Solicitações
   - Aprovações
   - Notificações
+  - Histórico de mudanças
 
 ## Fase 6: Relatórios e Extras (4-5 dias)
 - Sistema de relatórios

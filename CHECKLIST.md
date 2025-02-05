@@ -120,6 +120,14 @@
   - [ ] Semanal
   - [ ] Mensal
   - [ ] Anual (calendário completo)
+- [ ] Gestão de Turnos:
+  - [x] Sistema de cores intuitivo
+  - [x] Auto-save de alterações
+  - [x] Filtros avançados
+  - [x] Indicadores visuais
+  - [x] Modal de edição rápida
+  - [ ] Histórico de alterações
+  - [ ] Notificações de mudanças
 - [ ] Alterações:
   - [ ] Lista de solicitações
   - [ ] Formulário de alteração
@@ -139,9 +147,13 @@
   - [ ] CRUD completo
   - [ ] Permissões
 - [ ] Gestão de turnos:
-  - [ ] Visualização por período
-  - [ ] Filtros avançados
-  - [ ] Motivos de ausência
+  - [x] Sistema de cores por período
+  - [x] Filtros avançados
+  - [x] Auto-save de alterações
+  - [x] Modal de edição rápida
+  - [ ] Histórico de alterações
+  - [ ] Notificações automáticas
+  - [ ] Exportação de dados
 - [ ] Sistema de alterações:
   - [ ] Solicitação
   - [ ] Aprovação/Rejeição

@@ -2,6 +2,11 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { employeeService } from '@/services/employeeService'
 import { shiftService } from '@/services/shiftService'
+import { FiUsers, FiCalendar, FiTrendingUp } from 'react-icons/fi'
+import { ReadOnlyShiftTable } from '@/components/shifts/ReadOnlyShiftTable'
+import { YearlyCalendar } from '@/components/shifts/YearlyCalendar'
+import { format, addDays } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 export function Dashboard() {
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
@@ -31,81 +36,88 @@ export function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="space-y-6 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         {/* Card de Funcionários */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            ArbeitsPlan
-          </h3>
-          <p className="text-3xl font-bold text-blue-600">
-            {employees.length}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Total de funcionários cadastrados
-          </p>
+        <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-blue-100 group">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
+              <FiUsers className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-xs font-medium text-gray-500">
+                ArbeitsPlan
+              </h3>
+              <div className="flex items-baseline gap-2">
+                <p className="text-xl font-bold text-blue-600">
+                  {employees.length}
+                </p>
+                <p className="text-[10px] text-gray-400">
+                  funcionários
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Card de Turnos */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Turnos
-          </h3>
-          <p className="text-3xl font-bold text-green-600">
-            {shifts.length}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Turnos nos próximos 7 dias
-          </p>
+        <div className="bg-gradient-to-br from-green-50 to-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-green-100 group">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+              <FiCalendar className="w-4 h-4 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-xs font-medium text-gray-500">
+                Turnos
+              </h3>
+              <div className="flex items-baseline gap-2">
+                <p className="text-xl font-bold text-green-600">
+                  {shifts.length}
+                </p>
+                <p className="text-[10px] text-gray-400">
+                  próx. 7 dias
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Card de Média */}
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Média
-          </h3>
-          <p className="text-3xl font-bold text-purple-600">
-            {employees.length > 0
-              ? (shifts.length / employees.length).toFixed(1)
-              : '0'}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Turnos por funcionário
-          </p>
+        <div className="bg-gradient-to-br from-purple-50 to-white rounded-xl p-3 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-purple-100 group">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+              <FiTrendingUp className="w-4 h-4 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="text-xs font-medium text-gray-500">
+                Média
+              </h3>
+              <div className="flex items-baseline gap-2">
+                <p className="text-xl font-bold text-purple-600">
+                  {employees.length > 0
+                    ? (shifts.length / employees.length).toFixed(1)
+                    : '0'}
+                </p>
+                <p className="text-[10px] text-gray-400">
+                  por funcionário
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Lista de Próximos Turnos */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-          Próximos Turnos
+      {/* Tabela de Turnos */}
+      <div className="bg-white shadow-sm rounded-lg p-4">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+          Plano de Trabalho de {format(new Date(), "dd 'de' MMMM", { locale: ptBR })} a {format(addDays(new Date(), 6), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
         </h3>
-        <div className="space-y-4">
-          {shifts.slice(0, 5).map((shift) => {
-            const employee = employees.find(e => e.id === shift.employee_id)
-            return (
-              <div
-                key={shift.id}
-                className="flex items-center justify-between border-b pb-4 last:border-0"
-              >
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {employee?.full_name}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(shift.date).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl">{shift.shift_type}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {shift.mission}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        <ReadOnlyShiftTable />
+      </div>
+
+      {/* Calendário Anual */}
+      <div className="bg-white shadow-sm rounded-lg p-4">
+        <YearlyCalendar />
       </div>
     </div>
   )

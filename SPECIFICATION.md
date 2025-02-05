@@ -88,7 +88,29 @@ O sistema será acessível via web, responsivo para dispositivos móveis e terá
   - Dropdowns
   - Tooltips
   - Badges coloridos
-  - Loading states
+  - Loading states e Spinners
+  - Filtros avançados com auto-save
+  - Sistema de cores para turnos
+    - Manhã: Vermelho
+    - Tarde: Verde
+    - Noite: Azul
+    - Folga: Cinza
+
+### 3.3 Funcionalidades Específicas
+#### 3.3.1 Gestão de Turnos
+- Sistema de cores intuitivo
+- Auto-save de alterações
+- Filtros avançados por:
+  - Nome
+  - Departamento
+  - Equipe
+  - Período
+- Indicadores visuais para:
+  - Fins de semana
+  - Feriados
+  - Turnos especiais
+- Modal de edição rápida
+- Histórico de alterações
 
 ## 4. Páginas e Rotas
 
@@ -147,12 +169,13 @@ O sistema será acessível via web, responsivo para dispositivos móveis e terá
 #### shifts
 - id: uuid
 - date: date
-- type: enum (morning, afternoon, night, off)
-- group_id: uuid
-- user_id: uuid
-- reason: enum (ZK, Lab_Messung, K, U, Lab_Koordinator, Other)
-- reason_detail: string
+- period: enum (morning, afternoon, night, off)
+- employee_id: uuid
+- start_time: timestamp
+- end_time: timestamp
+- notes: string
 - created_at: timestamp
+- updated_at: timestamp
 
 #### changes
 - id: uuid
