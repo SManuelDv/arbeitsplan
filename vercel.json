@@ -1,51 +1,14 @@
 {
   "version": 2,
+  "public": true,
+  "buildCommand": "npm run build",
+  "installCommand": "cd ./ && npm install",
+  "framework": "vite",
+  "outputDirectory": "dist",
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*).(js|css|ico|json)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "dest": "/$1.$2"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "github": {
-    "silent": true,
-    "autoJobCancelation": true
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
+      "use": "@vercel/node"
     }
   ]
 } 
