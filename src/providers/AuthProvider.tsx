@@ -8,6 +8,7 @@ interface Profile {
   role: 'admin' | 'normal'
   full_name: string | null
   avatar_url: string | null
+  department: string
   created_at: string
   updated_at: string
 }
@@ -79,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: 'normal',
           full_name: user?.user_metadata?.full_name || null,
           avatar_url: null,
+          department: '',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }

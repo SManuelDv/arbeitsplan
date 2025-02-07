@@ -3,6 +3,7 @@ import { format, addMonths, startOfYear, getDaysInMonth, startOfMonth } from 'da
 import { ptBR } from 'date-fns/locale'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { yearlyShiftService, ShiftType, TeamType } from '@/services/yearlyShiftService'
+import { useAuthContext } from '@/providers/AuthProvider'
 import toast from 'react-hot-toast'
 
 interface DayShift {
@@ -40,6 +41,7 @@ const WEEKDAYS = {
 const YEAR = 2025
 
 export function YearlyCalendar() {
+  const { isAdmin } = useAuthContext()
   const queryClient = useQueryClient()
   const [yearShifts, setYearShifts] = useState<DayShift[]>(() => {
     const shifts: DayShift[] = []
@@ -153,7 +155,7 @@ export function YearlyCalendar() {
     )
 
     return (
-      <div className="min-w-[280px] transform transition-all duration-300 hover:scale-[1.02]">
+      <div className="min-w-[220px] transform transition-all duration-300 hover:scale-[1.02]">
         <table className="w-full border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
           <thead>
             <tr>
@@ -162,7 +164,7 @@ export function YearlyCalendar() {
               </th>
             </tr>
             <tr className="bg-gray-50">
-              <th className="px-1 py-1 text-xs font-medium text-gray-500 border-b border-r w-16">Dia</th>
+              <th className="px-1 py-1 text-xs font-medium text-gray-500 border-b border-r w-12">Dia</th>
               <th colSpan={4} className="px-1 py-1 text-xs font-medium text-gray-500 border-b">
                 Grupo
               </th>
@@ -170,7 +172,7 @@ export function YearlyCalendar() {
             <tr className="bg-gray-50">
               <th className="px-1 py-1 text-xs font-medium text-gray-500 border-b border-r"></th>
               {TEAMS.map(team => (
-                <th key={team} className="px-1 py-1 text-xs font-medium text-gray-500 border-b w-10">
+                <th key={team} className="px-1 py-1 text-xs font-medium text-gray-500 border-b w-8">
                   {team}
                 </th>
               ))}
@@ -186,17 +188,20 @@ export function YearlyCalendar() {
 
               return (
                 <tr key={day} className="hover:bg-gray-50">
-                  <td className="border-r px-1 py-1 text-xs">
-                    <div className="flex items-center gap-1">
-                      <span className="w-4 text-right">{day}</span>
-                      <span className="text-gray-500">{weekDay}</span>
+                  <td className="border-r px-1 py-0.5 text-xs">
+                    <div className="flex items-center gap-0.5">
+                      <span className="w-3 text-right">{day}</span>
+                      <span className="text-gray-500 text-[10px]">{weekDay}</span>
                     </div>
                   </td>
                   {TEAMS.map(team => (
                     <td key={team} className="p-0 border-r last:border-r-0">
                       <button
                         onClick={() => handleShiftClick(currentDate, team)}
-                        className={`w-full h-6 ${SHIFT_COLORS[dayShifts?.[team] || '⚪']} transition-colors hover:opacity-80`}
+                        disabled={!isAdmin}
+                        className={`w-full h-5 ${SHIFT_COLORS[dayShifts?.[team] || '⚪']} transition-colors ${
+                          isAdmin ? 'hover:opacity-80 cursor-pointer' : 'cursor-not-allowed'
+                        }`}
                       >
                         <span className="sr-only">Alterar turno</span>
                       </button>
@@ -233,7 +238,7 @@ export function YearlyCalendar() {
         </div>
       ) : (
         <div className="overflow-x-auto pb-6">
-          <div className="flex gap-6 min-w-max animate-slide-left">
+          <div className="flex gap-4 min-w-max animate-slide-left">
             {Array.from({ length: 12 }).map((_, i) => (
               <div key={`month-${i}`}>
                 {renderMonth(i)}

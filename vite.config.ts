@@ -10,10 +10,12 @@ export default defineConfig({
     }
   },
   server: {
+    host: '0.0.0.0',
     port: 3000,
     strictPort: true,
     hmr: {
-      overlay: true
+      overlay: true,
+      clientPort: 3000
     }
   },
   css: {
@@ -25,15 +27,28 @@ export default defineConfig({
   build: {
     sourcemap: true,
     cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'ui-vendor': ['@headlessui/react'],
-          'data-vendor': ['@tanstack/react-query', '@supabase/supabase-js']
+          'data-vendor': ['@tanstack/react-query', '@supabase/supabase-js'],
+          'form-vendor': ['react-hook-form', 'zod'],
+          'router-vendor': ['react-router-dom']
         }
       }
+    },
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
     }
+  },
+  preview: {
+    port: 3000,
+    host: '0.0.0.0'
   }
 })
 // teste

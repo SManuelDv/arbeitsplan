@@ -6,6 +6,7 @@ import { employeeService } from '@/services/employeeService'
 import { shiftService } from '@/services/shiftService'
 import { FiFilter, FiX } from 'react-icons/fi'
 import styles from './ReadOnlyShiftTable.module.css'
+import { useAuthContext } from '@/providers/AuthProvider'
 
 interface EmployeeWithShifts {
   id: string
@@ -23,6 +24,7 @@ const SHIFT_COLORS = {
 }
 
 export function ReadOnlyShiftTable() {
+  const { profile, isAdmin } = useAuthContext()
   const [filters, setFilters] = useState({
     name: '',
     department: '',
@@ -76,8 +78,16 @@ export function ReadOnlyShiftTable() {
     }
   })
 
-  // Filtrar funcionários
+  // Filtrar funcionários com base no perfil do usuário e filtros aplicados
   const filteredEmployees = employeesWithShifts.filter(employee => {
+    // Primeiro, aplicar restrição por departamento se não for admin
+    if (!isAdmin && profile?.department) {
+      if (employee.department !== profile.department) {
+        return false
+      }
+    }
+
+    // Depois aplicar os filtros normais
     const nameMatch = employee.full_name.toLowerCase().includes(filters.name.toLowerCase())
     const departmentMatch = !filters.department || employee.department === filters.department
     const teamMatch = !filters.team || employee.team === filters.team
@@ -104,100 +114,102 @@ export function ReadOnlyShiftTable() {
 
   return (
     <div>
-      {/* Botão de Filtro */}
-      <div className="flex justify-end mb-4">
-        <div className="relative">
-          <button
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`p-2 border border-gray-300 rounded-lg hover:bg-gray-50 relative ${
-              hasActiveFilters ? 'text-primary-600 border-primary-600' : 'text-gray-500'
-            }`}
-            title="Filtrar lista"
-            aria-label="Filtrar lista"
-          >
-            <FiFilter className="w-5 h-5" />
-            {hasActiveFilters && (
-              <span className="absolute -top-2 -right-2 w-4 h-4 text-[10px] font-medium text-white bg-primary-600 rounded-full flex items-center justify-center">
-                {Object.values(filters).filter(v => v !== '').length}
-              </span>
-            )}
-          </button>
+      {/* Botão de Filtro - Mostrar apenas para admin */}
+      {isAdmin && (
+        <div className="flex justify-end mb-4">
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`p-2 border border-gray-300 rounded-lg hover:bg-gray-50 relative ${
+                hasActiveFilters ? 'text-primary-600 border-primary-600' : 'text-gray-500'
+              }`}
+              title="Filtrar lista"
+              aria-label="Filtrar lista"
+            >
+              <FiFilter className="w-5 h-5" />
+              {hasActiveFilters && (
+                <span className="absolute -top-2 -right-2 w-4 h-4 text-[10px] font-medium text-white bg-primary-600 rounded-full flex items-center justify-center">
+                  {Object.values(filters).filter(v => v !== '').length}
+                </span>
+              )}
+            </button>
 
-          {/* Popover de Filtros */}
-          {isFilterOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 p-4 z-50">
-              <div className="space-y-3">
-                <div>
-                  <label htmlFor="filter-name" className="block text-xs font-medium text-gray-700 mb-1">
-                    Nome
-                  </label>
-                  <input
-                    id="filter-name"
-                    type="text"
-                    placeholder="Filtrar por nome..."
-                    value={filters.name}
-                    onChange={e => handleFilterChange('name', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
+            {/* Popover de Filtros */}
+            {isFilterOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 p-4 z-50">
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="filter-name" className="block text-xs font-medium text-gray-700 mb-1">
+                      Nome
+                    </label>
+                    <input
+                      id="filter-name"
+                      type="text"
+                      placeholder="Filtrar por nome..."
+                      value={filters.name}
+                      onChange={e => handleFilterChange('name', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="filter-department" className="block text-xs font-medium text-gray-700 mb-1">
-                    Departamento
-                  </label>
-                  <select
-                    id="filter-department"
-                    value={filters.department}
-                    onChange={e => handleFilterChange('department', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="">Todos</option>
-                    <option value="CP">CP</option>
-                    <option value="Lab">Lab</option>
-                    <option value="PC">PC</option>
-                    <option value="SV">SV</option>
-                    <option value="WW">WW</option>
-                  </select>
-                </div>
+                  <div>
+                    <label htmlFor="filter-department" className="block text-xs font-medium text-gray-700 mb-1">
+                      Departamento
+                    </label>
+                    <select
+                      id="filter-department"
+                      value={filters.department}
+                      onChange={e => handleFilterChange('department', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Todos</option>
+                      <option value="CP">CP</option>
+                      <option value="Lab">Lab</option>
+                      <option value="PC">PC</option>
+                      <option value="SV">SV</option>
+                      <option value="WW">WW</option>
+                    </select>
+                  </div>
 
-                <div>
-                  <label htmlFor="filter-team" className="block text-xs font-medium text-gray-700 mb-1">
-                    Time
-                  </label>
-                  <select
-                    id="filter-team"
-                    value={filters.team}
-                    onChange={e => handleFilterChange('team', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="">Todos</option>
-                    <option value="A">Time A</option>
-                    <option value="B">Time B</option>
-                    <option value="C">Time C</option>
-                    <option value="D">Time D</option>
-                  </select>
-                </div>
+                  <div>
+                    <label htmlFor="filter-team" className="block text-xs font-medium text-gray-700 mb-1">
+                      Time
+                    </label>
+                    <select
+                      id="filter-team"
+                      value={filters.team}
+                      onChange={e => handleFilterChange('team', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="">Todos</option>
+                      <option value="A">Time A</option>
+                      <option value="B">Time B</option>
+                      <option value="C">Time C</option>
+                      <option value="D">Time D</option>
+                    </select>
+                  </div>
 
-                <div className="flex justify-between pt-3 border-t">
-                  <button
-                    onClick={clearFilters}
-                    className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-900"
-                  >
-                    <FiX className="w-4 h-4" />
-                    Limpar filtros
-                  </button>
-                  <button
-                    onClick={() => setIsFilterOpen(false)}
-                    className="px-3 py-1 text-xs text-white bg-primary-600 rounded-md hover:bg-primary-700"
-                  >
-                    Aplicar
-                  </button>
+                  <div className="flex justify-between pt-3 border-t">
+                    <button
+                      onClick={clearFilters}
+                      className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-900"
+                    >
+                      <FiX className="w-4 h-4" />
+                      Limpar filtros
+                    </button>
+                    <button
+                      onClick={() => setIsFilterOpen(false)}
+                      className="px-3 py-1 text-xs text-white bg-primary-600 rounded-md hover:bg-primary-700"
+                    >
+                      Aplicar
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
