@@ -1,15 +1,11 @@
 import React, { Suspense } from 'react'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import { DefaultLayout } from '../layouts/DefaultLayout'
-import { Login } from '../pages/auth/Login'
-import { Register } from '../pages/auth/Register'
-import { ForgotPassword } from '../pages/auth/ForgotPassword'
-import { AuthCallback } from '../pages/auth/AuthCallback'
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
+import { Layout } from '../components/ui/Layout'
 import { Dashboard } from '../pages/Dashboard'
 import { Employees } from '../pages/employees/Employees'
 import { EmployeeForm } from '../pages/employees/EmployeeForm'
 import { ShiftManagement } from '../pages/shifts/ShiftManagement'
-import { useAuthContext } from '../providers/AuthProvider'
+import { routerConfig } from '@/config/router'
 
 // Componente de loading
 function LoadingSpinner() {
@@ -20,114 +16,22 @@ function LoadingSpinner() {
   )
 }
 
-// Componente para rotas protegidas
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuthContext()
-
-  if (loading) {
-    return <LoadingSpinner />
-  }
-
-  if (!user) {
-    return <Navigate to="/auth/login" />
-  }
-
-  return <>{children}</>
-}
-
-// Componente para rotas públicas
-function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuthContext()
-
-  if (loading) {
-    return <LoadingSpinner />
-  }
-
-  if (user) {
-    return <Navigate to="/" />
-  }
-
-  return <>{children}</>
-}
-
 // Configuração das rotas
-const router = createBrowserRouter([
-  // Rotas públicas
-  {
-    path: '/auth',
-    children: [
-      {
-        path: 'login',
-        element: <PublicRoute><Login /></PublicRoute>
-      },
-      {
-        path: 'register',
-        element: <PublicRoute><Register /></PublicRoute>
-      },
-      {
-        path: 'forgot-password',
-        element: <PublicRoute><ForgotPassword /></PublicRoute>
-      },
-      {
-        path: 'callback',
-        element: <AuthCallback />
-      }
-    ]
-  },
-  
-  // Redirecionar rotas antigas
-  {
-    path: '/login',
-    element: <Navigate to="/auth/login" replace />
-  },
-  {
-    path: '/register',
-    element: <Navigate to="/auth/register" replace />
-  },
-  {
-    path: '/forgot-password',
-    element: <Navigate to="/auth/forgot-password" replace />
-  },
-  
-  // Rotas protegidas
+export const router = createBrowserRouter([
   {
     path: '/',
-    element: <PrivateRoute><DefaultLayout /></PrivateRoute>,
+    element: <Layout><Outlet /></Layout>,
     children: [
-      {
-        path: '',
-        element: <Dashboard />
-      },
-      {
-        path: 'employees',
-        element: <Employees />
-      },
-      {
-        path: 'employees/new',
-        element: <EmployeeForm />
-      },
-      {
-        path: 'employees/:id/edit',
-        element: <EmployeeForm />
-      },
-      {
-        path: 'shifts',
-        element: <ShiftManagement />
-      }
+      { index: true, element: <Dashboard /> },
+      { path: 'employees', element: <Employees /> },
+      { path: 'employees/new', element: <EmployeeForm /> },
+      { path: 'employees/:id/edit', element: <EmployeeForm /> },
+      { path: 'shifts', element: <ShiftManagement /> }
     ]
   },
-  
-  // Rota 404
-  {
-    path: '*',
-    element: <Navigate to="/" />
-  }
-], {
-  future: {
-    v7_startTransition: true,
-    v7_relativeSplatPath: true
-  }
-})
+  { path: '/login', element: <Navigate to="/" /> },
+  { path: '*', element: <Navigate to="/" /> }
+], routerConfig)
 
 // Componente principal de rotas
 export function AppRoutes() {

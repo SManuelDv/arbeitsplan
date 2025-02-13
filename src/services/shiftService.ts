@@ -1,6 +1,6 @@
 import { supabase } from '@/config/supabaseClient'
 
-export type ShiftType = '🔴' | '🟢' | '🔵' | '⚪'
+export type ShiftType = 'morning' | 'afternoon' | 'night' | 'off'
 export type MissionType = 
   | 'CP Verpacker'
   | 'fU'
@@ -19,29 +19,27 @@ export type MissionType =
   | 'ZK'
 
 export interface Shift {
-  id?: string
+  id: string
   employee_id: string
   date: string
   shift_type: ShiftType
   mission: MissionType | null
-  created_at?: string
-  updated_at?: string
+  created_at: string
+  updated_at: string
 }
 
 class ShiftService {
   private async checkAuth() {
-    console.log('[ShiftService] Verificando autenticação')
     const { data: { session }, error } = await supabase.auth.getSession()
-    console.log('[ShiftService] Sessão atual:', session)
     
     if (error) {
-      console.error('[ShiftService] Erro ao verificar autenticação:', error)
-      throw error
+      console.error('[ShiftService] Auth error:', error.message)
+      throw new Error('Authentication failed')
     }
     
     if (!session) {
-      console.error('[ShiftService] Usuário não autenticado')
-      throw new Error('Usuário não autenticado')
+      console.error('[ShiftService] No active session')
+      throw new Error('No active session')
     }
     
     return session
@@ -50,24 +48,25 @@ class ShiftService {
   async getShifts(startDate: string, endDate: string): Promise<Shift[]> {
     try {
       await this.checkAuth()
-      console.log('[ShiftService] Buscando turnos de', startDate, 'até', endDate)
+      console.log('[ShiftService] Fetching shifts:', { startDate, endDate })
 
       const { data, error } = await supabase
         .from('shifts')
         .select('*')
         .gte('date', startDate)
         .lte('date', endDate)
-        .order('date')
+        .order('date', { ascending: true })
 
       if (error) {
-        console.error('[ShiftService] Erro ao buscar turnos:', error)
-        throw error
+        console.error('[ShiftService] Database error:', error.message)
+        throw new Error('Failed to fetch shifts')
       }
 
+      console.log('[ShiftService] Fetched shifts:', data?.length)
       return data as Shift[]
     } catch (error) {
-      console.error('[ShiftService] Erro ao buscar turnos:', error)
-      throw new Error('Não foi possível carregar os turnos')
+      console.error('[ShiftService] Error in getShifts:', error)
+      throw error
     }
   }
 
@@ -154,53 +153,93 @@ class ShiftService {
   async updateShift(
     employeeId: string,
     date: string,
-    data: { shift_type?: ShiftType; mission?: MissionType | null }
+    data: { shift_type: ShiftType; mission: MissionType | null }
   ): Promise<Shift> {
     try {
       await this.checkAuth()
-      console.log('[ShiftService] Atualizando turno do funcionário:', employeeId, date, data)
+      console.log('[ShiftService] Updating shift:', { employeeId, date, data })
 
-      // Primeiro, verificar se já existe um turno para esta data e funcionário
+      // First, try to find an existing shift
       const { data: existingShift, error: findError } = await supabase
         .from('shifts')
         .select('*')
         .eq('employee_id', employeeId)
         .eq('date', date)
-        .single()
+        .maybeSingle()
 
-      if (findError && findError.code !== 'PGRST116') { // PGRST116 = no rows returned
-        throw findError
+      if (findError) {
+        console.error('[ShiftService] Error finding shift:', findError.message)
+        throw new Error('Failed to check existing shift')
       }
 
+      let result
       if (existingShift) {
-        // Se existe, atualizar
-        const { data: updatedShift, error: updateError } = await supabase
+        // Update existing shift
+        const { data: updated, error: updateError } = await supabase
           .from('shifts')
-          .update(data)
+          .update({
+            shift_type: data.shift_type,
+            mission: data.mission,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', existingShift.id)
           .select()
           .single()
 
-        if (updateError) throw updateError
-        return updatedShift as Shift
+        if (updateError) {
+          console.error('[ShiftService] Error updating shift:', updateError.message)
+          throw new Error('Failed to update shift')
+        }
+        result = updated
       } else {
-        // Se não existe, criar
-        const { data: newShift, error: createError } = await supabase
+        // Create new shift
+        const { data: created, error: insertError } = await supabase
           .from('shifts')
           .insert([{
             employee_id: employeeId,
             date,
-            ...data
+            shift_type: data.shift_type,
+            mission: data.mission,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           }])
           .select()
           .single()
 
-        if (createError) throw createError
-        return newShift as Shift
+        if (insertError) {
+          console.error('[ShiftService] Error creating shift:', insertError.message)
+          throw new Error('Failed to create shift')
+        }
+        result = created
       }
+
+      console.log('[ShiftService] Shift updated successfully:', result)
+      return result as Shift
     } catch (error) {
-      console.error('[ShiftService] Erro ao atualizar turno:', error)
-      throw new Error('Não foi possível atualizar o turno')
+      console.error('[ShiftService] Error in updateShift:', error)
+      throw error
+    }
+  }
+
+  async deleteShift(id: string): Promise<void> {
+    try {
+      await this.checkAuth()
+      console.log('[ShiftService] Deleting shift:', id)
+
+      const { error } = await supabase
+        .from('shifts')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('[ShiftService] Error deleting shift:', error.message)
+        throw new Error('Failed to delete shift')
+      }
+
+      console.log('[ShiftService] Shift deleted successfully')
+    } catch (error) {
+      console.error('[ShiftService] Error in deleteShift:', error)
+      throw error
     }
   }
 }

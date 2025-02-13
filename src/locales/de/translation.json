@@ -1,0 +1,140 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "employees": "Mitarbeiter",
+    "shifts": "Schichten",
+    "reports": "Berichte",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "notifications": "Benachrichtigungen",
+    "messages": "Nachrichten",
+    "profile": "Profil",
+    "language": "Sprache",
+    "selectLanguage": "Sprache auswählen",
+    "administrator": "Administrator",
+    "user": "Benutzer",
+    "actions": "Aktionen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "deleting": "Wird gelöscht...",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "create": "Erstellen",
+    "status": "Status",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "name": "Name",
+    "department": "Abteilung",
+    "team": "Team",
+    "filter": "Filter",
+    "error": {
+      "updateFailed": "Aktualisierung fehlgeschlagen",
+      "loadingFailed": "Laden fehlgeschlagen"
+    },
+    "success": {
+      "updated": "Erfolgreich aktualisiert"
+    }
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "forgotPassword": "Passwort vergessen?",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "loginWithGoogle": "Mit Google anmelden",
+    "loginRequired": "Sie müssen angemeldet sein, um Schichten zu verwalten"
+  },
+  "employees": {
+    "title": "Mitarbeiter",
+    "newEmployee": "Neuer Mitarbeiter",
+    "editEmployee": "Mitarbeiter bearbeiten",
+    "add": "Mitarbeiter hinzufügen",
+    "edit": "Mitarbeiter bearbeiten",
+    "delete": "Mitarbeiter löschen",
+    "deleteConfirmTitle": "Löschen bestätigen",
+    "deleteConfirmMessage": "Sind Sie sicher, dass Sie diesen Mitarbeiter löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "fullName": "Vollständiger Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "department": "Abteilung",
+    "team": "Team",
+    "role": "Position",
+    "startDate": "Startdatum",
+    "status": "Status",
+    "actions": "Aktionen",
+    "selectDepartment": "Abteilung auswählen",
+    "selectTeam": "Team auswählen",
+    "selectRole": "Position auswählen",
+    "other": "Andere",
+    "cpVerpacker": "CP Verpacker",
+    "fu": "fU",
+    "k": "K",
+    "labKoordinator": "Lab Koordinator",
+    "labMessung": "Lab Messung",
+    "pcSap": "PC SAP",
+    "pcSpleisser": "PC Spleisser",
+    "pcTraining": "PC Training",
+    "svAgm": "SV AGM",
+    "svBattery": "SV Battery",
+    "svCsx": "SV CSX",
+    "u": "U",
+    "wwBevorrater": "WW Bevorrater",
+    "wwCaseLoader": "WW CaseLoader",
+    "zk": "ZK"
+  },
+  "shifts": {
+    "title": "Schichtmanagement",
+    "workPlan": "Arbeitsplan",
+    "from": "von",
+    "to": "bis",
+    "name": "Name",
+    "department": "Abteilung",
+    "team": "Team",
+    "filter": "Filter",
+    "clearFilter": "Filter zurücksetzen",
+    "noShifts": "Keine Schichten gefunden",
+    "stats": {
+      "totalEmployees": "Mitarbeiter",
+      "totalShifts": "Schichten in den nächsten",
+      "days": "Tagen",
+      "average": "Durchschnitt pro Mitarbeiter"
+    },
+    "days": {
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag"
+    },
+    "departments": {
+      "casepack": "CasePack",
+      "prepcenter": "PrepCenter",
+      "labor": "Labor",
+      "service": "Service"
+    },
+    "teams": {
+      "timea": "Team A",
+      "timeb": "Team B",
+      "timec": "Team C",
+      "timed": "Team D"
+    },
+    "types": {
+      "morning": "Früh",
+      "afternoon": "Spät",
+      "night": "Nacht",
+      "off": "Frei",
+      "unassigned": "Nicht zugewiesen"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Willkommen",
+    "stats": {
+      "employees": "Mitarbeiter",
+      "shifts": "Schichten",
+      "average": "Durchschnitt"
+    }
+  }
+} 

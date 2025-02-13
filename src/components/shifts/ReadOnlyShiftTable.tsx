@@ -7,20 +7,40 @@ import { shiftService } from '@/services/shiftService'
 import { FiFilter, FiX } from 'react-icons/fi'
 import styles from './ReadOnlyShiftTable.module.css'
 import { useAuthContext } from '@/providers/AuthProvider'
+import { Employee } from '../../services/employeeService'
 
-interface EmployeeWithShifts {
-  id: string
-  full_name: string
-  department: string
-  team: string
-  shifts: Record<string, any>
+type ShiftType = '🔴' | '🟢' | '🔵' | '⚪'
+type MissionType = 'ZK' | 'Lab Messung' | 'K' | 'U' | 'Lab Koordinator' | 'CP Verpacker' | 'fU' | 'PC SAP' | 'PC Spleisser' | 'PC Training' | 'SV AGM' | 'SV Battery' | 'SV CSX' | 'WW Bevorrater' | 'WW CaseLoader'
+
+interface Shift {
+  employee_id: string
+  date: string
+  shift_type: ShiftType
+  mission: MissionType | null
+  id?: string
+  created_at?: string
+  updated_at?: string
 }
 
-const SHIFT_COLORS = {
+interface EmployeeWithShifts extends Employee {
+  shifts: Record<string, Shift>
+}
+
+const shiftColors = {
   '🔴': 'text-red-500',
   '🟢': 'text-green-500',
   '🔵': 'text-blue-500',
   '⚪': 'text-gray-400'
+} as const
+
+type ShiftColorType = keyof typeof shiftColors
+type ShiftColorValue = typeof shiftColors[ShiftColorType]
+
+function getShiftColor(shift_type: ShiftType | undefined): ShiftColorValue {
+  if (!shift_type || !(shift_type in shiftColors)) {
+    return shiftColors['⚪']
+  }
+  return shiftColors[shift_type]
 }
 
 export function ReadOnlyShiftTable() {
@@ -64,18 +84,21 @@ export function ReadOnlyShiftTable() {
   })
 
   // Combinar funcionários com seus turnos
-  const employeesWithShifts: EmployeeWithShifts[] = employees.map(employee => {
+  const employeesWithShifts = employees.map(employee => {
     const employeeShifts = shifts
       .filter(shift => shift.employee_id === employee.id)
-      .reduce((acc, shift) => ({
-        ...acc,
-        [shift.date]: shift
-      }), {} as Record<string, any>)
+      .reduce<Record<string, Shift>>((acc, shift) => {
+        acc[shift.date] = {
+          ...shift,
+          mission: shift.mission || null
+        };
+        return acc;
+      }, {});
 
     return {
       ...employee,
       shifts: employeeShifts
-    }
+    } as EmployeeWithShifts;
   })
 
   // Filtrar funcionários com base no perfil do usuário e filtros aplicados
@@ -267,7 +290,7 @@ export function ReadOnlyShiftTable() {
                     >
                       {shift && (
                         <div className="flex flex-col items-center justify-center gap-0.5">
-                          <div className={`text-lg font-bold leading-none ${SHIFT_COLORS[shift.shift_type]}`}>
+                          <div className={`text-lg font-bold leading-none ${getShiftColor(shift.shift_type)}`}>
                             {shift.shift_type}
                           </div>
                           {shift.mission && (

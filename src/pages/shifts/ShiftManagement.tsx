@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { format, addDays, startOfToday } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { ptBR, de, enUS } from 'date-fns/locale'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { employeeService } from '@/services/employeeService'
 import { shiftService, type Shift } from '@/services/shiftService'
@@ -8,6 +8,8 @@ import { ShiftCell } from '@/components/shifts/ShiftCell'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/config/supabaseClient'
 import styles from './ShiftManagement.module.css'
+import { useTranslation } from 'react-i18next'
+import { TFunction } from 'i18next'
 
 interface EmployeeWithShifts {
   id: string
@@ -18,13 +20,46 @@ interface EmployeeWithShifts {
   shifts: Record<string, Shift>
 }
 
+const locales = {
+  pt: ptBR,
+  de: de,
+  en: enUS
+}
+
+// Função para traduzir o nome do departamento
+function translateDepartment(department: string, t: TFunction) {
+  const key = department.toLowerCase().replace(/\s+/g, '')
+  return t(`shifts.departments.${key}`, { defaultValue: department })
+}
+
+// Função para traduzir o nome do time
+function translateTeam(team: string, t: TFunction) {
+  const key = team.toLowerCase().replace(/\s+/g, '')
+  return t(`shifts.teams.${key}`, { defaultValue: team })
+}
+
 export function ShiftManagement() {
+  const { t, i18n } = useTranslation()
+  const currentLocale = locales[i18n.language as keyof typeof locales] || enUS
   const queryClient = useQueryClient()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [filter, setFilter] = useState({
     name: '',
     team: ''
   })
+
+  // Força a atualização das datas quando o idioma muda
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      // Força a re-renderização do componente
+      queryClient.invalidateQueries({ queryKey: ['shifts'] })
+    }
+
+    i18n.on('languageChanged', handleLanguageChange)
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange)
+    }
+  }, [i18n, queryClient])
 
   // Gerar datas dos próximos 30 dias
   const dates = Array.from({ length: 30 }, (_, i) => {
@@ -33,8 +68,8 @@ export function ShiftManagement() {
       full: date,
       formatted: format(date, 'yyyy-MM-dd'),
       display: {
-        weekday: format(date, 'EEE', { locale: ptBR }),
-        date: format(date, 'dd/MM', { locale: ptBR })
+        weekday: format(date, 'EEE', { locale: currentLocale }),
+        date: format(date, 'dd/MM', { locale: currentLocale })
       }
     }
   })
@@ -110,7 +145,7 @@ export function ShiftManagement() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <p className="text-lg text-gray-600">
-          Você precisa estar autenticado para gerenciar turnos
+          {t('auth.loginRequired')}
         </p>
         <button
           onClick={() => supabase.auth.signInWithOAuth({
@@ -139,7 +174,7 @@ export function ShiftManagement() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Entrar com Google
+          {t('auth.loginWithGoogle')}
         </button>
       </div>
     )
@@ -154,91 +189,151 @@ export function ShiftManagement() {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pt-2">
-      <div className="sm:flex sm:items-center sm:justify-between mb-2">
-        <div className="sm:flex-auto">
-          <h1 className="text-xl font-black text-gray-900">
-            Gestão de Turnos
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {format(dates[0].full, "dd 'de' MMMM", { locale: ptBR })} - {format(dates[dates.length - 1].full, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-          </p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <div className="text-blue-600 dark:text-blue-400">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {t('shifts.stats.totalEmployees')}
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {filteredEmployees.length}
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mt-2 sm:mt-0 sm:ml-16 sm:flex-none">
-          <button
-            onClick={handleLogout}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-100"
-          >
-            Sair
-          </button>
+
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <div className="text-green-600 dark:text-green-400">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {t('shifts.stats.totalShifts')} 7 {t('shifts.stats.days')}
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {Object.keys(shifts).length}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <div className="text-purple-600 dark:text-purple-400">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {t('shifts.stats.average')}
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                {(Object.keys(shifts).length / filteredEmployees.length || 0).toFixed(1)}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th className={styles.stickyHeaderName}>
-                <div className="text-[10px] uppercase">Nome</div>
-              </th>
-              <th className={styles.stickyHeaderDepartment}>
-                <div className="text-[10px] uppercase">Departamento</div>
-              </th>
-              <th className={styles.stickyHeaderTeam}>
-                <div className="text-[10px] uppercase">Time</div>
-              </th>
-              {dates.map(({ full, formatted }) => {
-                const isWeekend = [0, 6].includes(full.getDay())
-                return (
-                  <th
-                    key={formatted}
-                    className={`${styles.headerCell} ${isWeekend ? styles.weekendDay : ''}`}
-                  >
-                    <div className="text-[10px] uppercase">{format(full, 'EEE', { locale: ptBR })}</div>
-                    <div className="text-[11px]">{format(full, 'dd/MM')}</div>
-                  </th>
-                )
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredEmployees.map((employee, index) => (
-              <tr
-                key={employee.id}
-                className={index % 2 === 0 ? styles.bodyRow : styles.stripedRow}
-              >
-                <td className={styles.stickyNameColumn}>
-                  <div className={styles.employeeName}>{employee.full_name}</div>
-                </td>
-                <td className={styles.stickyDepartmentColumn}>
-                  <div className={styles.employeeInfo}>
-                    {employee.department}
-                  </div>
-                </td>
-                <td className={styles.stickyTeamColumn}>
-                  <div className={styles.employeeInfo}>
-                    Time {employee.team}
-                  </div>
-                </td>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {t('shifts.workPlan')} {t('shifts.from')} {format(dates[0].full, 'PPP', { locale: currentLocale })} {t('shifts.to')} {format(dates[dates.length - 1].full, 'PPP', { locale: currentLocale })}
+          </h1>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {t('shifts.name')}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {t('shifts.department')}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {t('shifts.team')}
+                </th>
                 {dates.map(({ full, formatted }) => {
                   const isWeekend = [0, 6].includes(full.getDay())
+                  const dayName = format(full, 'EEEE', { locale: currentLocale })
                   return (
-                    <td 
-                      key={formatted} 
-                      className={`${styles.bodyCell} ${isWeekend ? styles.weekendDay : ''}`}
+                    <th
+                      key={formatted}
+                      className={`px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider ${
+                        isWeekend ? 'bg-gray-50 dark:bg-gray-700' : ''
+                      }`}
                     >
-                      <ShiftCell
-                        employeeId={employee.id}
-                        date={formatted}
-                        shift={employee.shifts[formatted]}
-                      />
-                    </td>
+                      <div className="text-[10px] uppercase">
+                        {format(full, 'EEE', { locale: currentLocale })}
+                      </div>
+                      <div className="text-[11px]">
+                        {format(full, 'dd/MM', { locale: currentLocale })}
+                      </div>
+                    </th>
                   )
                 })}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {filteredEmployees.length > 0 ? (
+                filteredEmployees.map((employee, index) => (
+                  <tr
+                    key={employee.id}
+                    className={index % 2 === 0 ? styles.bodyRow : styles.stripedRow}
+                  >
+                    <td className={styles.stickyNameColumn}>
+                      <div className={styles.employeeName}>{employee.full_name}</div>
+                    </td>
+                    <td className={styles.stickyDepartmentColumn}>
+                      <div className={styles.employeeInfo}>
+                        {t(`shifts.departments.${employee.department.toLowerCase()}`)}
+                      </div>
+                    </td>
+                    <td className={styles.stickyTeamColumn}>
+                      <div className={styles.employeeInfo}>
+                        {t(`shifts.teams.${employee.team.toLowerCase()}`)}
+                      </div>
+                    </td>
+                    {dates.map(({ full, formatted }) => {
+                      const isWeekend = [0, 6].includes(full.getDay())
+                      return (
+                        <td 
+                          key={formatted} 
+                          className={`${styles.bodyCell} ${isWeekend ? styles.weekendDay : ''}`}
+                        >
+                          <ShiftCell
+                            employeeId={employee.id}
+                            date={formatted}
+                            shift={employee.shifts[formatted]}
+                          />
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={dates.length + 3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                    {t('shifts.noShifts')}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

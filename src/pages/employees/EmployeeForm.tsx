@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { employeeService, type Employee } from '@/services/employeeService'
+import { useTranslation } from 'react-i18next'
 
 export function EmployeeForm() {
+  const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -83,7 +85,7 @@ export function EmployeeForm() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-base font-semibold leading-6 text-gray-900">
-            {isEditing ? 'Editar Funcionário' : 'Novo Funcionário'}
+            {isEditing ? t('employees.editEmployee') : t('employees.newEmployee')}
           </h1>
         </div>
       </div>
@@ -103,7 +105,7 @@ export function EmployeeForm() {
           <div className="grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="full_name" className="block text-sm font-medium leading-6 text-gray-900">
-                Nome completo
+                {t('employees.fullName')}
               </label>
               <input
                 type="text"
@@ -118,7 +120,7 @@ export function EmployeeForm() {
 
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email
+                {t('employees.email')}
               </label>
               <input
                 type="email"
@@ -133,7 +135,7 @@ export function EmployeeForm() {
 
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
-                Telefone
+                {t('employees.phone')}
               </label>
               <input
                 type="tel"
@@ -147,7 +149,7 @@ export function EmployeeForm() {
 
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="department" className="block text-sm font-medium leading-6 text-gray-900">
-                Departamento
+                {t('employees.department')}
               </label>
               <select
                 id="department"
@@ -157,19 +159,18 @@ export function EmployeeForm() {
                 value={formData.department || ''}
                 onChange={handleInputChange}
               >
-                <option value="">Selecione um departamento</option>
-                <option value="CasePack">CasePack</option>
-                <option value="Labor">Labor</option>
-                <option value="PrepCenter">PrepCenter</option>
-                <option value="Service">Service</option>
-                <option value="Wipes">Wipes</option>
-                <option value="Outro">Outro</option>
+                <option value="">{t('employees.selectDepartment')}</option>
+                <option value="CasePack">{t('shifts.departments.casepack')}</option>
+                <option value="Labor">{t('shifts.departments.labor')}</option>
+                <option value="PrepCenter">{t('shifts.departments.prepcenter')}</option>
+                <option value="Service">{t('shifts.departments.service')}</option>
+                <option value="Outro">{t('employees.other')}</option>
               </select>
             </div>
 
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="team" className="block text-sm font-medium leading-6 text-gray-900">
-                Time
+                {t('employees.team')}
               </label>
               <select
                 id="team"
@@ -179,16 +180,16 @@ export function EmployeeForm() {
                 value={formData.team || 'A'}
                 onChange={handleInputChange}
               >
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
+                <option value="A">{t('shifts.teams.timea')}</option>
+                <option value="B">{t('shifts.teams.timeb')}</option>
+                <option value="C">{t('shifts.teams.timec')}</option>
+                <option value="D">{t('shifts.teams.timed')}</option>
               </select>
             </div>
 
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="role" className="block text-sm font-medium leading-6 text-gray-900">
-                Função
+                {t('employees.role')}
               </label>
               <select
                 id="role"
@@ -198,28 +199,28 @@ export function EmployeeForm() {
                 value={formData.role || ''}
                 onChange={handleInputChange}
               >
-                <option value="">Selecione uma função</option>
-                <option value="CP Verpacker">CP Verpacker</option>
-                <option value="fU">fU</option>
-                <option value="K">K</option>
-                <option value="Lab Koordinator">Lab Koordinator</option>
-                <option value="Lab Messung">Lab Messung</option>
-                <option value="PC SAP">PC SAP</option>
-                <option value="PC Spleisser">PC Spleisser</option>
-                <option value="PC Training">PC Training</option>
-                <option value="SV AGM">SV AGM</option>
-                <option value="SV Battery">SV Battery</option>
-                <option value="SV CSX">SV CSX</option>
-                <option value="U">U</option>
-                <option value="WW Bevorrater">WW Bevorrater</option>
-                <option value="WW CaseLoader">WW CaseLoader</option>
-                <option value="ZK">ZK</option>
+                <option value="">{t('employees.selectRole')}</option>
+                <option value="CP Verpacker">{t('employees.cpVerpacker')}</option>
+                <option value="fU">{t('employees.fu')}</option>
+                <option value="K">{t('employees.k')}</option>
+                <option value="Lab Koordinator">{t('employees.labKoordinator')}</option>
+                <option value="Lab Messung">{t('employees.labMessung')}</option>
+                <option value="PC SAP">{t('employees.pcSap')}</option>
+                <option value="PC Spleisser">{t('employees.pcSpleisser')}</option>
+                <option value="PC Training">{t('employees.pcTraining')}</option>
+                <option value="SV AGM">{t('employees.svAgm')}</option>
+                <option value="SV Battery">{t('employees.svBattery')}</option>
+                <option value="SV CSX">{t('employees.svCsx')}</option>
+                <option value="U">{t('employees.u')}</option>
+                <option value="WW Bevorrater">{t('employees.wwBevorrater')}</option>
+                <option value="WW CaseLoader">{t('employees.wwCaseLoader')}</option>
+                <option value="ZK">{t('employees.zk')}</option>
               </select>
             </div>
 
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="contract_start" className="block text-sm font-medium leading-6 text-gray-900">
-                Data de início
+                {t('employees.startDate')}
               </label>
               <input
                 type="date"
@@ -246,7 +247,7 @@ export function EmployeeForm() {
                 </div>
                 <div className="ml-3 text-sm leading-6">
                   <label htmlFor="active" className="font-medium text-gray-900">
-                    Ativo
+                    {t('common.active')}
                   </label>
                 </div>
               </div>
@@ -260,13 +261,13 @@ export function EmployeeForm() {
             className="mr-3 inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             onClick={() => navigate('/employees')}
           >
-            Cancelar
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
             className="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            {isEditing ? 'Salvar' : 'Criar'}
+            {isEditing ? t('common.save') : t('common.create')}
           </button>
         </div>
       </form>

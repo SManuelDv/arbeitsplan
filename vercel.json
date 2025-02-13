@@ -1,7 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "CI=false npm run build",
-  "installCommand": "npm install",
+  "buildCommand": "CI=false tsc -p tsconfig.vercel.json && vite build",
+  "installCommand": "npm install --ignore-scripts",
   "framework": "vite",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "env": {
+    "VITE_SUPABASE_URL": "@vite_supabase_url",
+    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
+    "VITE_API_URL": "@vite_api_url"
+  }
 } 

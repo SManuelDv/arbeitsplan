@@ -1,0 +1,135 @@
+{
+  "common": {
+    "dashboard": "Painel",
+    "employees": "Funcionários",
+    "shifts": "Turnos",
+    "reports": "Relatórios",
+    "settings": "Configurações",
+    "logout": "Sair",
+    "notifications": "Notificações",
+    "messages": "Mensagens",
+    "profile": "Perfil",
+    "language": "Idioma",
+    "selectLanguage": "Selecionar idioma",
+    "administrator": "Administrador",
+    "user": "Usuário",
+    "actions": "Ações",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "create": "Criar",
+    "status": "Status",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "name": "Nome",
+    "department": "Departamento",
+    "team": "Time",
+    "filter": "Filtrar",
+    "error": {
+      "updateFailed": "Falha na atualização"
+    },
+    "success": {
+      "updated": "Atualizado com sucesso"
+    }
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Registrar",
+    "forgotPassword": "Esqueceu a senha?",
+    "email": "E-mail",
+    "password": "Senha",
+    "loginWithGoogle": "Entrar com Google"
+  },
+  "employees": {
+    "title": "Funcionários",
+    "newEmployee": "Novo Funcionário",
+    "editEmployee": "Editar Funcionário",
+    "add": "Adicionar Funcionário",
+    "edit": "Editar Funcionário",
+    "delete": "Excluir Funcionário",
+    "fullName": "Nome Completo",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "department": "Departamento",
+    "team": "Time",
+    "role": "Função",
+    "startDate": "Data de Início",
+    "status": "Status",
+    "actions": "Ações",
+    "selectDepartment": "Selecione um departamento",
+    "selectTeam": "Selecione um time",
+    "selectRole": "Selecione uma função",
+    "other": "Outro",
+    "cpVerpacker": "CP Verpacker",
+    "fu": "fU",
+    "k": "K",
+    "labKoordinator": "Coordenador de Laboratório",
+    "labMessung": "Medição de Laboratório",
+    "pcSap": "PC SAP",
+    "pcSpleisser": "PC Splicer",
+    "pcTraining": "PC Treinamento",
+    "svAgm": "SV AGM",
+    "svBattery": "SV Bateria",
+    "svCsx": "SV CSX",
+    "u": "U",
+    "wwBevorrater": "WW Fornecedor",
+    "wwCaseLoader": "WW Carregador de Caixas",
+    "zk": "ZK"
+  },
+  "shifts": {
+    "title": "Gestão de Turnos",
+    "workPlan": "Plano de Trabalho",
+    "from": "de",
+    "to": "até",
+    "name": "Nome",
+    "department": "Departamento",
+    "team": "Time",
+    "filter": "Filtrar",
+    "clearFilter": "Limpar Filtro",
+    "noShifts": "Nenhum turno encontrado",
+    "stats": {
+      "totalEmployees": "funcionários",
+      "totalShifts": "turnos próx.",
+      "days": "dias",
+      "average": "média por funcionário"
+    },
+    "days": {
+      "monday": "Segunda",
+      "tuesday": "Terça",
+      "wednesday": "Quarta",
+      "thursday": "Quinta",
+      "friday": "Sexta",
+      "saturday": "Sábado",
+      "sunday": "Domingo"
+    },
+    "departments": {
+      "casepack": "CasePack",
+      "prepcenter": "PrepCenter",
+      "labor": "Labor",
+      "service": "Service"
+    },
+    "teams": {
+      "timea": "Time A",
+      "timeb": "Time B",
+      "timec": "Time C",
+      "timed": "Time D"
+    },
+    "types": {
+      "morning": "Manhã",
+      "afternoon": "Tarde",
+      "night": "Noite",
+      "off": "Folga",
+      "unassigned": "Não atribuído"
+    }
+  },
+  "dashboard": {
+    "title": "Painel",
+    "welcome": "Bem-vindo",
+    "stats": {
+      "employees": "funcionários",
+      "shifts": "turnos",
+      "average": "média"
+    }
+  }
+} 

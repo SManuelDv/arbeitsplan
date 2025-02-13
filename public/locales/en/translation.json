@@ -1,0 +1,140 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "employees": "Employees",
+    "shifts": "Shifts",
+    "reports": "Reports",
+    "settings": "Settings",
+    "logout": "Logout",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "profile": "Profile",
+    "language": "Language",
+    "selectLanguage": "Select language",
+    "administrator": "Administrator",
+    "user": "User",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "name": "Name",
+    "department": "Department",
+    "team": "Team",
+    "filter": "Filter",
+    "error": {
+      "updateFailed": "Update failed",
+      "loadingFailed": "Loading failed"
+    },
+    "success": {
+      "updated": "Successfully updated"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "forgotPassword": "Forgot Password?",
+    "email": "Email",
+    "password": "Password",
+    "loginWithGoogle": "Sign in with Google",
+    "loginRequired": "You need to be authenticated to manage shifts"
+  },
+  "employees": {
+    "title": "Employees",
+    "newEmployee": "New Employee",
+    "editEmployee": "Edit Employee",
+    "add": "Add Employee",
+    "edit": "Edit Employee",
+    "delete": "Delete Employee",
+    "deleteConfirmTitle": "Confirm deletion",
+    "deleteConfirmMessage": "Are you sure you want to delete this employee? This action cannot be undone.",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "department": "Department",
+    "team": "Team",
+    "role": "Role",
+    "startDate": "Start Date",
+    "status": "Status",
+    "actions": "Actions",
+    "selectDepartment": "Select a department",
+    "selectTeam": "Select a team",
+    "selectRole": "Select a role",
+    "other": "Other",
+    "cpVerpacker": "CP Packer",
+    "fu": "fU",
+    "k": "K",
+    "labKoordinator": "Lab Coordinator",
+    "labMessung": "Lab Measurement",
+    "pcSap": "PC SAP",
+    "pcSpleisser": "PC Splicer",
+    "pcTraining": "PC Training",
+    "svAgm": "SV AGM",
+    "svBattery": "SV Battery",
+    "svCsx": "SV CSX",
+    "u": "U",
+    "wwBevorrater": "WW Supplier",
+    "wwCaseLoader": "WW Case Loader",
+    "zk": "ZK"
+  },
+  "shifts": {
+    "title": "Shift Management",
+    "workPlan": "Work Plan",
+    "from": "from",
+    "to": "to",
+    "name": "Name",
+    "department": "Department",
+    "team": "Team",
+    "filter": "Filter",
+    "clearFilter": "Clear Filter",
+    "noShifts": "No shifts found",
+    "stats": {
+      "totalEmployees": "employees",
+      "totalShifts": "shifts next",
+      "days": "days",
+      "average": "average per employee"
+    },
+    "days": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "departments": {
+      "casepack": "CasePack",
+      "prepcenter": "PrepCenter",
+      "labor": "Labor",
+      "service": "Service"
+    },
+    "teams": {
+      "timea": "Team A",
+      "timeb": "Team B",
+      "timec": "Team C",
+      "timed": "Team D"
+    },
+    "types": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "night": "Night",
+      "off": "Off",
+      "unassigned": "Unassigned"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "stats": {
+      "employees": "employees",
+      "shifts": "shifts",
+      "average": "average"
+    }
+  }
+} 

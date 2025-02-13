@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthContext } from '@/providers/AuthProvider'
 import { motion } from 'framer-motion'
@@ -12,9 +12,10 @@ interface MenuItem {
 
 interface SidebarProps {
   isOpen: boolean
+  onToggle: () => void
 }
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation()
   const { user } = useAuthContext()
 
@@ -90,7 +91,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
     <div>
       {/* Botão do Menu Fixo */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onToggle}
         className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow duration-200"
         aria-label={isOpen ? 'Fechar menu' : 'Abrir menu'}
       >
@@ -111,16 +112,14 @@ export function Sidebar({ isOpen }: SidebarProps) {
       </button>
 
       {/* Sidebar */}
-      <div>
-        {isOpen && (
+      {isOpen && (
+        <>
           <motion.aside
             initial={{ x: -240 }}
             animate={{ x: 0 }}
             exit={{ x: -240 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`fixed top-0 left-0 z-40 h-screen w-60 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 shadow-lg ${
-              isOpen ? 'w-64' : 'w-20'
-            }`}
+            className="fixed top-0 left-0 z-40 h-screen w-60 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 shadow-lg"
           >
             {/* Menu */}
             <nav className="h-full pt-20 pb-4 px-3 flex flex-col">
@@ -129,14 +128,15 @@ export function Sidebar({ isOpen }: SidebarProps) {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                    onClick={onToggle}
+                    className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       location.pathname === item.path
                         ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
                         : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
                     }`}
                   >
                     <span className="w-5 h-5">{item.icon}</span>
-                    {isOpen && <span className="ml-3">{item.label}</span>}
+                    <span className="ml-3">{item.label}</span>
                   </Link>
                 ))}
               </div>
@@ -156,21 +156,17 @@ export function Sidebar({ isOpen }: SidebarProps) {
               </div>
             </nav>
           </motion.aside>
-        )}
-      </div>
 
-      {/* Overlay */}
-      <div>
-        {isOpen && (
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setIsOpen(false)}
+            onClick={onToggle}
             className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm"
           />
-        )}
-      </div>
+        </>
+      )}
     </div>
   )
 } 

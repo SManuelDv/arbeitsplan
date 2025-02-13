@@ -1,23 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { shiftService, type Shift, type ShiftType, type MissionType } from '@/services/shiftService'
 import { toast } from 'react-hot-toast'
 import { Popover } from '@headlessui/react'
+import { useTranslation } from 'react-i18next'
 
-const SHIFT_COLORS = {
-  '🔴': 'text-red-500',
-  '🟢': 'text-green-500',
-  '🔵': 'text-blue-500',
-  '⚪': 'text-gray-400'
-} as const
-
-const SHIFT_TYPES: ShiftType[] = ['🔴', '🟢', '🔵', '⚪']
-const SHIFT_LABELS = {
-  '🔴': 'Manhã',
-  '🟢': 'Tarde',
-  '🔵': 'Noite',
-  '⚪': 'Folga'
-} as const
+const SHIFT_TYPES: ShiftType[] = ['morning', 'afternoon', 'night', 'off']
 
 const FUNCTIONS: MissionType[] = [
   'CP Verpacker',
@@ -47,36 +35,35 @@ interface ShiftCellProps {
 export function ShiftCell({ employeeId, date, shift, showFunction = false }: ShiftCellProps) {
   const queryClient = useQueryClient()
   const [isUpdating, setIsUpdating] = useState(false)
+  const { t, i18n } = useTranslation()
+
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      setIsUpdating(prev => !prev)
+    }
+
+    i18n.on('languageChanged', handleLanguageChange)
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange)
+    }
+  }, [i18n])
 
   const updateShiftMutation = useMutation({
     mutationFn: async (data: { shift_type: ShiftType; mission: MissionType | null }) => {
-      console.log('[ShiftCell] Iniciando atualização:', {
-        employeeId,
-        date,
-        data,
-        currentShift: shift
-      })
-
+      setIsUpdating(true)
       try {
         const result = await shiftService.updateShift(employeeId, date, data)
-        console.log('[ShiftCell] Resultado da atualização:', result)
         return result
       } catch (error) {
-        console.error('[ShiftCell] Erro na mutação:', error)
+        console.error('[ShiftCell] Mutation error:', error)
         throw error
       }
     },
     onMutate: async (data) => {
-      console.log('[ShiftCell] Preparando atualização otimista:', data)
-      
-      // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: ['shifts'] })
       
-      // Snapshot do valor anterior
       const previousShifts = queryClient.getQueryData(['shifts'])
-      console.log('[ShiftCell] Estado anterior:', previousShifts)
       
-      // Atualizar cache otimisticamente
       queryClient.setQueryData(['shifts'], (old: Shift[] | undefined) => {
         if (!old) return []
         
@@ -91,12 +78,10 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
         }
 
         if (shift) {
-          // Atualizar turno existente
           return old.map(s => 
             s.employee_id === employeeId && s.date === date ? newShift : s
           )
         } else {
-          // Criar novo turno
           return [...old, newShift]
         }
       })
@@ -104,18 +89,15 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
       return { previousShifts }
     },
     onError: (error: any, variables, context) => {
-      console.error('[ShiftCell] Erro na atualização:', error)
-      toast.error('Erro ao atualizar turno')
-      // Reverter para o estado anterior em caso de erro
+      console.error('[ShiftCell] Update error:', error)
+      toast.error(t('common.error.updateFailed'))
       if (context?.previousShifts) {
         queryClient.setQueryData(['shifts'], context.previousShifts)
       }
     },
     onSuccess: (data) => {
-      console.log('[ShiftCell] Atualização bem sucedida:', data)
-      toast.success('Turno atualizado com sucesso')
+      toast.success(t('common.success.updated'))
       
-      // Atualizar cache com os dados do servidor
       queryClient.setQueryData(['shifts'], (old: Shift[] | undefined) => {
         if (!old) return [data]
         
@@ -131,73 +113,59 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
           return [...old, data]
         }
       })
-      
-      // Forçar refetch para garantir dados atualizados
-      queryClient.invalidateQueries({ queryKey: ['shifts'] })
     },
     onSettled: () => {
-      console.log('[ShiftCell] Finalizando atualização')
       setIsUpdating(false)
+      queryClient.invalidateQueries({ queryKey: ['shifts'] })
     }
   })
 
   const handleShiftTypeSelect = async (type: ShiftType) => {
     if (isUpdating) return
-    console.log('[ShiftCell] Selecionando turno:', {
-      type,
-      currentShift: shift,
-      employeeId,
-      date
-    })
-    
-    setIsUpdating(true)
     
     try {
-      const newData = {
+      await updateShiftMutation.mutateAsync({
         shift_type: type,
         mission: shift?.mission || null
-      }
-      
-      await updateShiftMutation.mutateAsync(newData)
-      // Fechar o popover após a atualização
+      })
       const button = document.activeElement as HTMLElement
       button?.blur()
     } catch (error) {
-      console.error('[ShiftCell] Erro ao selecionar turno:', error)
-    } finally {
-      setIsUpdating(false)
+      console.error('[ShiftCell] Error selecting shift type:', error)
     }
   }
 
   const handleMissionSelect = async (mission: MissionType | null) => {
     if (isUpdating) return
-    console.log('[ShiftCell] Selecionando função:', {
-      mission,
-      currentShift: shift,
-      employeeId,
-      date
-    })
-    
-    setIsUpdating(true)
     
     try {
-      const newData = {
-        shift_type: shift?.shift_type || '⚪',
+      await updateShiftMutation.mutateAsync({
+        shift_type: shift?.shift_type || 'off',
         mission
-      }
-      
-      await updateShiftMutation.mutateAsync(newData)
-      // Fechar o popover após a atualização
+      })
       const button = document.activeElement as HTMLElement
       button?.blur()
     } catch (error) {
-      console.error('[ShiftCell] Erro ao selecionar função:', error)
-    } finally {
-      setIsUpdating(false)
+      console.error('[ShiftCell] Error selecting mission:', error)
     }
   }
 
-  const shiftType = shift?.shift_type || '⚪'
+  const shiftType = shift?.shift_type || 'off'
+
+  const getShiftColor = (type: ShiftType) => {
+    switch (type) {
+      case 'morning':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+      case 'afternoon':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+      case 'night':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+      case 'off':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+      default:
+        return 'bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+    }
+  }
 
   return (
     <div className="relative p-0 text-center min-w-[3rem] h-full bg-white">
@@ -212,12 +180,12 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
             ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}
           `}
         >
-          <div className={`text-lg sm:text-xl font-bold leading-none ${SHIFT_COLORS[shiftType]}`}>
-            {shiftType}
+          <div className={`text-lg sm:text-xl font-bold leading-none ${getShiftColor(shiftType)}`}>
+            {t(`shifts.types.${shiftType}`, { defaultValue: shiftType })}
           </div>
           {shift?.mission && (
             <div className="text-[9px] sm:text-[10px] text-gray-700 font-medium whitespace-nowrap overflow-visible px-0.5">
-              {shift.mission}
+              {t(`employees.${shift.mission.toLowerCase().replace(/\s+/g, '')}`, { defaultValue: shift.mission })}
             </div>
           )}
         </Popover.Button>
@@ -225,7 +193,7 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
         <Popover.Panel className="absolute z-10 w-[500px] p-2 mt-0.5 bg-white rounded-lg shadow-lg">
           <div className="flex gap-4">
             <div>
-              <h3 className="text-[10px] font-medium text-gray-700 mb-1">Turno</h3>
+              <h3 className="text-[10px] font-medium text-gray-700 mb-1">{t('shifts.title')}</h3>
               <div className="grid grid-cols-1 gap-1">
                 {SHIFT_TYPES.map(type => (
                   <button
@@ -233,21 +201,20 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
                     onClick={() => handleShiftTypeSelect(type)}
                     disabled={isUpdating}
                     className={`
-                      p-1 rounded-lg text-base bg-white w-10
+                      p-1 rounded-lg text-base bg-white w-full
                       ${shiftType === type ? 'ring-1 ring-primary-500' : ''}
                       ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
-                      ${SHIFT_COLORS[type]}
+                      ${getShiftColor(type)}
                     `}
                   >
-                    <span className="sr-only">{SHIFT_LABELS[type]}</span>
-                    {type}
+                    {t(`shifts.types.${type}`, { defaultValue: type })}
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="flex-1">
-              <h3 className="text-[10px] font-medium text-gray-700 mb-1">Função</h3>
+              <h3 className="text-[10px] font-medium text-gray-700 mb-1">{t('employees.role')}</h3>
               <div className="grid grid-cols-2 gap-1">
                 {FUNCTIONS.map(func => (
                   <button
@@ -260,7 +227,7 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
                       ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
                     `}
                   >
-                    {func}
+                    {t(`employees.${func.toLowerCase().replace(/\s+/g, '')}`, { defaultValue: func })}
                   </button>
                 ))}
                 <button
@@ -272,7 +239,7 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
                     ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
                   `}
                 >
-                  Sem função
+                  {t('shifts.types.unassigned')}
                 </button>
               </div>
             </div>
@@ -281,4 +248,4 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
       </Popover>
     </div>
   )
-} 
+}

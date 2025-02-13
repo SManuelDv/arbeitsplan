@@ -8,4 +8,4 @@ export function DefaultLayout() {
       <Outlet />
     </Layout>
   )
-} 
+}
