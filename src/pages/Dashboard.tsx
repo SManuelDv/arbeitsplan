@@ -8,6 +8,7 @@ import { YearlyCalendar } from '@/components/shifts/YearlyCalendar'
 import { format, addDays } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useAuthContext } from '@/providers/AuthProvider'
+import { useTranslation } from 'react-i18next'
 
 export function Dashboard() {
   const { isAdmin } = useAuthContext()
@@ -23,6 +24,8 @@ export function Dashboard() {
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     )
   })
+
+  const { t } = useTranslation()
 
   if (isLoadingEmployees || isLoadingShifts) {
     return (
@@ -49,7 +52,7 @@ export function Dashboard() {
               </div>
               <div>
                 <h3 className="text-xs font-medium text-gray-500">
-                  ArbeitsPlan
+                  {t('dashboard.stats.employees')}
                 </h3>
                 <div className="flex items-baseline gap-2">
                   <p className="text-xl font-bold text-blue-600">
@@ -71,7 +74,7 @@ export function Dashboard() {
               </div>
               <div>
                 <h3 className="text-xs font-medium text-gray-500">
-                  Turnos
+                  {t('dashboard.stats.shifts')} 7 {t('shifts.stats.days')}
                 </h3>
                 <div className="flex items-baseline gap-2">
                   <p className="text-xl font-bold text-green-600">
@@ -93,7 +96,7 @@ export function Dashboard() {
               </div>
               <div>
                 <h3 className="text-xs font-medium text-gray-500">
-                  Média
+                  {t('dashboard.stats.average')}
                 </h3>
                 <div className="flex items-baseline gap-2">
                   <p className="text-xl font-bold text-purple-600">
@@ -115,7 +118,7 @@ export function Dashboard() {
       <div className="bg-white shadow-sm rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-gray-900">
-            Plano de Trabalho de {format(new Date(), "dd 'de' MMMM", { locale: ptBR })} a {format(addDays(new Date(), 6), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+            {t('shifts.workPlan')} {t('shifts.from')} {format(new Date(), "dd 'de' MMMM", { locale: ptBR })} {t('shifts.to')} {format(addDays(new Date(), 6), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </h2>
         </div>
         <ReadOnlyShiftTable />

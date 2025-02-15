@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { employeeService } from '@/services/employeeService'
@@ -7,7 +7,7 @@ import { FiEdit2, FiPlus, FiTrash2, FiFilter } from 'react-icons/fi'
 import { useTranslation } from 'react-i18next'
 
 export function EmployeeList() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [filters, setFilters] = useState({
     name: '',
     department: '',
@@ -15,6 +15,18 @@ export function EmployeeList() {
   })
   const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null)
   const queryClient = useQueryClient()
+
+  // Forçar atualização quando o idioma mudar
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] })
+    }
+
+    i18n.on('languageChanged', handleLanguageChange)
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange)
+    }
+  }, [i18n, queryClient])
 
   const { data: employees, isLoading, error } = useQuery({
     queryKey: ['employees'],
@@ -55,7 +67,7 @@ export function EmployeeList() {
   if (error) {
     return (
       <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-        {t('common.error.loadingFailed')}
+        {t('common.error.loadFailed')}
       </div>
     )
   }

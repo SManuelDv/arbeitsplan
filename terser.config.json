@@ -1,0 +1,41 @@
+{
+  "compress": {
+    "arrows": true,
+    "arguments": true,
+    "booleans_as_integers": true,
+    "dead_code": true,
+    "drop_console": true,
+    "drop_debugger": true,
+    "ecma": 2020,
+    "evaluate": true,
+    "hoist_funs": true,
+    "hoist_props": true,
+    "hoist_vars": false,
+    "inline": true,
+    "loops": true,
+    "negate_iife": true,
+    "properties": true,
+    "reduce_vars": true,
+    "toplevel": true,
+    "typeofs": true,
+    "unsafe": false,
+    "pure_getters": true,
+    "passes": 3
+  },
+  "mangle": {
+    "eval": true,
+    "keep_classnames": false,
+    "keep_fnames": false,
+    "module": true,
+    "toplevel": true,
+    "safari10": true
+  },
+  "module": true,
+  "sourceMap": false,
+  "format": {
+    "ascii_only": true,
+    "beautify": false,
+    "braces": false,
+    "comments": false
+  }
+} 

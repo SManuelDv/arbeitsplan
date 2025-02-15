@@ -1,122 +1,98 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../../config/supabaseClient'
-import { validateEmail } from '../../utils/validation'
-import { Feedback } from '../../components/ui/Feedback'
+import { Link } from 'react-router-dom'
+import { supabase } from '@/config/supabaseClient'
+import { useTranslation } from 'react-i18next'
+import { LanguageSelector } from '@/components/ui/LanguageSelector'
 
 export function Login() {
-  const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<string[]>([])
-  const [success, setSuccess] = useState('')
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    setErrors([])
-    setSuccess('')
-  }
-
-  const validateForm = () => {
-    const emailErrors = validateEmail(formData.email)
-    const passwordErrors = formData.password ? [] : ['Senha é obrigatória']
-    
-    const allErrors = [...emailErrors, ...passwordErrors]
-    setErrors(allErrors)
-    return allErrors.length === 0
-  }
+  const [error, setError] = useState<string | null>(null)
+  const { t } = useTranslation()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!validateForm()) {
-      return
-    }
+    setError(null)
+    setLoading(true)
 
     try {
-      setLoading(true)
       const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password
+        email,
+        password
       })
 
-      if (error) {
-        setErrors(['Email ou senha inválidos'])
-      } else {
-        setSuccess('Login realizado com sucesso!')
-        setTimeout(() => {
-          navigate('/')
-        }, 1500)
-      }
-    } catch (error) {
-      setErrors(['Ocorreu um erro ao fazer login. Tente novamente.'])
+      if (error) throw error
+    } catch (error: any) {
+      setError(error.message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-4 right-4">
+        <LanguageSelector />
+      </div>
+      
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Entre na sua conta
+            {t('auth.login')}
           </h2>
         </div>
-
-        {errors.length > 0 && (
-          <Feedback
-            type="error"
-            message={errors}
-            onClose={() => setErrors([])}
-          />
-        )}
-
-        {success && (
-          <Feedback
-            type="success"
-            message={success}
-            onClose={() => setSuccess('')}
-          />
-        )}
-
+        
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="flex">
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email" className="sr-only">
-                Email
-              </label>
+              <label htmlFor="email" className="sr-only">{t('auth.email')}</label>
               <input
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder={t('auth.email')}
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                Senha
-              </label>
+              <label htmlFor="password" className="sr-only">{t('auth.password')}</label>
               <input
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Senha"
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder={t('auth.password')}
               />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+                {t('auth.register')}
+              </Link>
+            </div>
+            <div className="text-sm">
+              <Link to="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
+                {t('auth.forgotPassword')}
+              </Link>
             </div>
           </div>
 
@@ -124,31 +100,10 @@ export function Login() {
             <button
               type="submit"
               disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? t('auth.loggingIn') : t('auth.login')}
             </button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                to="/auth/register"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                Não tem uma conta? Registre-se
-              </Link>
-            </div>
-            <div className="text-sm">
-              <Link
-                to="/auth/forgot-password"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                Esqueceu sua senha?
-              </Link>
-            </div>
           </div>
         </form>
       </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { FiFilter, FiX } from 'react-icons/fi'
+import { useTranslation } from 'react-i18next'
 
 interface FilterProps {
   onFilterChange: (filters: {
@@ -10,6 +11,7 @@ interface FilterProps {
 }
 
 export function EmployeeFilter({ onFilterChange }: FilterProps) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [filters, setFilters] = useState({
     name: '',
@@ -36,6 +38,7 @@ export function EmployeeFilter({ onFilterChange }: FilterProps) {
         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
       >
         <FiFilter className="w-4 h-4" />
+        {t('common.filter')}
         {Object.values(filters).some(v => v) && (
           <span className="flex items-center justify-center w-5 h-5 text-xs text-white bg-primary-500 rounded-full">
             {Object.values(filters).filter(v => v).length}
@@ -47,49 +50,53 @@ export function EmployeeFilter({ onFilterChange }: FilterProps) {
         <div className="absolute right-0 z-10 mt-2 bg-white border border-gray-200 rounded-md shadow-lg w-72">
           <div className="p-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nome</label>
+              <label className="block text-sm font-medium text-gray-700">{t('common.name')}</label>
               <input
                 type="text"
                 value={filters.name}
                 onChange={(e) => handleFilterChange('name', e.target.value)}
-                placeholder="Buscar por nome..."
+                placeholder={t('employees.searchByName')}
                 className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
 
             <div>
-              <label htmlFor="filter-department" className="block text-sm font-medium text-gray-700">Departamento</label>
+              <label htmlFor="filter-department" className="block text-sm font-medium text-gray-700">
+                {t('common.department')}
+              </label>
               <select
                 id="filter-department"
                 value={filters.department}
                 onChange={(e) => handleFilterChange('department', e.target.value)}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                aria-label="Filtrar por departamento"
+                aria-label={t('employees.filterByDepartment')}
               >
-                <option value="">Todos</option>
-                <option value="CasePack">CasePack</option>
-                <option value="Labor">Labor</option>
-                <option value="PrepCenter">PrepCenter</option>
-                <option value="Service">Service</option>
-                <option value="Wipes">Wipes</option>
-                <option value="Outro">Outro</option>
+                <option value="">{t('common.all')}</option>
+                <option value="CasePack">{t('shifts.departments.casepack')}</option>
+                <option value="Labor">{t('shifts.departments.labor')}</option>
+                <option value="PrepCenter">{t('shifts.departments.prepcenter')}</option>
+                <option value="Service">{t('shifts.departments.service')}</option>
+                <option value="Wipes">{t('shifts.departments.wipes')}</option>
+                <option value="Outro">{t('employees.other')}</option>
               </select>
             </div>
 
             <div>
-              <label htmlFor="filter-team" className="block text-sm font-medium text-gray-700">Time</label>
+              <label htmlFor="filter-team" className="block text-sm font-medium text-gray-700">
+                {t('common.team')}
+              </label>
               <select
                 id="filter-team"
                 value={filters.team}
                 onChange={(e) => handleFilterChange('team', e.target.value)}
                 className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                aria-label="Filtrar por time"
+                aria-label={t('employees.filterByTeam')}
               >
-                <option value="">Todos</option>
-                <option value="A">Time A</option>
-                <option value="B">Time B</option>
-                <option value="C">Time C</option>
-                <option value="D">Time D</option>
+                <option value="">{t('common.all')}</option>
+                <option value="A">{t('shifts.teams.timea')}</option>
+                <option value="B">{t('shifts.teams.timeb')}</option>
+                <option value="C">{t('shifts.teams.timec')}</option>
+                <option value="D">{t('shifts.teams.timed')}</option>
               </select>
             </div>
 
@@ -99,13 +106,13 @@ export function EmployeeFilter({ onFilterChange }: FilterProps) {
                 className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-900"
               >
                 <FiX className="w-4 h-4" />
-                Limpar filtros
+                {t('shifts.clearFilter')}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
                 className="px-3 py-1 text-sm text-white bg-primary-600 rounded-md hover:bg-primary-700"
               >
-                Aplicar
+                {t('common.apply')}
               </button>
             </div>
           </div>

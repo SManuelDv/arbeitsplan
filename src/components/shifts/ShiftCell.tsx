@@ -181,11 +181,11 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
           `}
         >
           <div className={`text-lg sm:text-xl font-bold leading-none ${getShiftColor(shiftType)}`}>
-            {t(`shifts.types.${shiftType}`, { defaultValue: shiftType })}
+            {t(`shifts.types.${shiftType}`)}
           </div>
           {shift?.mission && (
             <div className="text-[9px] sm:text-[10px] text-gray-700 font-medium whitespace-nowrap overflow-visible px-0.5">
-              {t(`employees.${shift.mission.toLowerCase().replace(/\s+/g, '')}`, { defaultValue: shift.mission })}
+              {t(`employees.${shift.mission.toLowerCase().replace(/\s+/g, '')}`)}
             </div>
           )}
         </Popover.Button>
@@ -207,7 +207,7 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
                       ${getShiftColor(type)}
                     `}
                   >
-                    {t(`shifts.types.${type}`, { defaultValue: type })}
+                    {t(`shifts.types.${type}`)}
                   </button>
                 ))}
               </div>
@@ -227,7 +227,7 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
                       ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
                     `}
                   >
-                    {t(`employees.${func.toLowerCase().replace(/\s+/g, '')}`, { defaultValue: func })}
+                    {t(`employees.${func.toLowerCase().replace(/\s+/g, '')}`)}
                   </button>
                 ))}
                 <button
@@ -248,4 +248,4 @@ export function ShiftCell({ employeeId, date, shift, showFunction = false }: Shi
       </Popover>
     </div>
   )
-}
+} 

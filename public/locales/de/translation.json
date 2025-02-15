@@ -29,20 +29,34 @@
     "filter": "Filter",
     "error": {
       "updateFailed": "Aktualisierung fehlgeschlagen",
-      "loadingFailed": "Laden fehlgeschlagen"
+      "loadFailed": "Laden fehlgeschlagen",
+      "deleteFailed": "Löschen fehlgeschlagen"
     },
     "success": {
-      "updated": "Erfolgreich aktualisiert"
+      "updated": "Erfolgreich aktualisiert",
+      "deleted": "Erfolgreich gelöscht",
+      "created": "Erfolgreich erstellt"
     }
   },
   "auth": {
     "login": "Anmelden",
+    "loggingIn": "Anmeldung läuft...",
     "register": "Registrieren",
-    "forgotPassword": "Passwort vergessen?",
+    "registering": "Registrierung läuft...",
+    "forgotPassword": "Passwort vergessen",
     "email": "E-Mail",
     "password": "Passwort",
+    "fullName": "Vollständiger Name",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordsDoNotMatch": "Die Passwörter stimmen nicht überein",
+    "alreadyHaveAccount": "Haben Sie bereits ein Konto? Hier anmelden",
     "loginWithGoogle": "Mit Google anmelden",
-    "loginRequired": "Sie müssen angemeldet sein, um Schichten zu verwalten"
+    "needAuth": "Sie müssen angemeldet sein, um diese Seite zu sehen",
+    "enterEmailReset": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten",
+    "resetEmailSent": "Eine E-Mail mit dem Link zum Zurücksetzen des Passworts wurde gesendet",
+    "sendResetLink": "Link zum Zurücksetzen senden",
+    "sendingResetLink": "Link wird gesendet...",
+    "backToLogin": "Zurück zur Anmeldung"
   },
   "employees": {
     "title": "Mitarbeiter",

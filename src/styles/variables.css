@@ -3,9 +3,9 @@
   --z-base: 1;
   --z-table-sticky: 20;
   --z-table-header: 30;
-  --z-sidebar: 40;
+  --z-dropdown: 30;
   --z-overlay: 50;
-  --z-modal: 60;
+  --z-modal: 50;
 
   /* Cores - Baseadas nas já utilizadas */
   --color-primary: #4F46E5;

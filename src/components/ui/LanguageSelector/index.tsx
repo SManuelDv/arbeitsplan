@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { Menu, Transition } from '@headlessui/react'
 import { IoLanguage } from 'react-icons/io5'
 
-type SupportedLanguage = 'pt' | 'de' | 'en'
+type SupportedLanguage = 'de' | 'en' | 'pt'
 
 const languageInfo: Record<SupportedLanguage, { name: string; flag: string }> = {
-  pt: { name: 'Português', flag: '🇵🇹' },
   de: { name: 'Deutsch', flag: '🇩🇪' },
-  en: { name: 'English', flag: '🇬🇧' }
+  en: { name: 'English', flag: '🇬🇧' },
+  pt: { name: 'Português', flag: '🇵🇹' }
 }
 
-const supportedLanguages: SupportedLanguage[] = ['pt', 'de', 'en']
+const supportedLanguages: SupportedLanguage[] = ['de', 'en', 'pt']
 
 export function LanguageSelector() {
   const { i18n, t } = useTranslation()
@@ -19,6 +19,7 @@ export function LanguageSelector() {
   const handleLanguageChange = async (language: SupportedLanguage) => {
     try {
       await i18n.changeLanguage(language)
+      localStorage.setItem('i18nextLng', language)
       console.log('Language changed successfully to:', language)
     } catch (error) {
       console.error('Error changing language:', error)

@@ -1,17 +1,21 @@
--- Atualizar os tipos de turno existentes
+-- Criar o tipo enum primeiro (se ainda não existir)
+DO $$ BEGIN
+    CREATE TYPE shift_type_enum AS ENUM ('morning', 'afternoon', 'night', 'off');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Atualizar os valores existentes para o novo formato
 UPDATE shifts
 SET shift_type = CASE shift_type
-  WHEN '🔴' THEN 'morning'
-  WHEN '🟢' THEN 'afternoon'
-  WHEN '🔵' THEN 'night'
-  WHEN '⚪' THEN 'off'
-  ELSE 'off'
+    WHEN '🔴' THEN 'morning'::text
+    WHEN '🟢' THEN 'afternoon'::text
+    WHEN '🔵' THEN 'night'::text
+    WHEN '⚪' THEN 'off'::text
+    ELSE 'off'::text
 END;
 
--- Alterar o tipo da coluna shift_type para usar um enum
-CREATE TYPE shift_type AS ENUM ('morning', 'afternoon', 'night', 'off');
-
--- Converter a coluna para usar o novo tipo
+-- Alterar a coluna para usar o novo tipo enum
 ALTER TABLE shifts 
-  ALTER COLUMN shift_type TYPE shift_type 
-  USING shift_type::shift_type; 
+    ALTER COLUMN shift_type TYPE shift_type_enum 
+    USING shift_type::shift_type_enum; 

@@ -3,13 +3,13 @@ import { format, addDays, startOfToday } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useQuery } from '@tanstack/react-query'
 import { employeeService } from '@/services/employeeService'
-import { shiftService } from '@/services/shiftService'
+import { shiftService, type ShiftType } from '@/services/shiftService'
 import { FiFilter, FiX } from 'react-icons/fi'
 import styles from './ReadOnlyShiftTable.module.css'
 import { useAuthContext } from '@/providers/AuthProvider'
 import { Employee } from '../../services/employeeService'
+import { useTranslation } from 'react-i18next'
 
-type ShiftType = '🔴' | '🟢' | '🔵' | '⚪'
 type MissionType = 'ZK' | 'Lab Messung' | 'K' | 'U' | 'Lab Koordinator' | 'CP Verpacker' | 'fU' | 'PC SAP' | 'PC Spleisser' | 'PC Training' | 'SV AGM' | 'SV Battery' | 'SV CSX' | 'WW Bevorrater' | 'WW CaseLoader'
 
 interface Shift {
@@ -22,25 +22,26 @@ interface Shift {
   updated_at?: string
 }
 
-interface EmployeeWithShifts extends Employee {
+interface EmployeeWithShifts {
+  id: string
+  full_name: string
+  department: string
+  team: string
   shifts: Record<string, Shift>
 }
 
-const shiftColors = {
-  '🔴': 'text-red-500',
-  '🟢': 'text-green-500',
-  '🔵': 'text-blue-500',
-  '⚪': 'text-gray-400'
-} as const
+const SHIFT_COLORS: Record<string, string> = {
+  '🔴': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  '🟢': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  '🔵': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  '⚪': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+} as const;
 
-type ShiftColorType = keyof typeof shiftColors
-type ShiftColorValue = typeof shiftColors[ShiftColorType]
-
-function getShiftColor(shift_type: ShiftType | undefined): ShiftColorValue {
-  if (!shift_type || !(shift_type in shiftColors)) {
-    return shiftColors['⚪']
+function getShiftColor(shift: Shift) {
+  if (!shift) {
+    return SHIFT_COLORS['⚪']
   }
-  return shiftColors[shift_type]
+  return SHIFT_COLORS[shift.shift_type as keyof typeof SHIFT_COLORS]
 }
 
 export function ReadOnlyShiftTable() {
@@ -51,19 +52,11 @@ export function ReadOnlyShiftTable() {
     team: ''
   })
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const { t } = useTranslation()
 
   // Gerar datas dos próximos 7 dias
-  const dates = Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(startOfToday(), i)
-    return {
-      full: date,
-      formatted: format(date, 'yyyy-MM-dd'),
-      display: {
-        weekday: format(date, 'EEE', { locale: ptBR }),
-        date: format(date, 'dd/MM', { locale: ptBR })
-      }
-    }
-  })
+  const today = new Date()
+  const dates = Array.from({ length: 7 }, (_, i) => format(addDays(today, i), 'yyyy-MM-dd'))
 
   // Buscar funcionários
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
@@ -74,31 +67,23 @@ export function ReadOnlyShiftTable() {
 
   // Buscar turnos para os próximos 7 dias
   const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
-    queryKey: ['shifts', dates[0].formatted, dates[dates.length - 1].formatted],
-    queryFn: () => shiftService.getShifts(
-      dates[0].formatted,
-      dates[dates.length - 1].formatted
-    ),
-    staleTime: 0,
-    refetchInterval: 5000
+    queryKey: ['shifts', dates[0], dates[dates.length - 1]],
+    queryFn: () => shiftService.getShifts(dates[0], dates[dates.length - 1])
   })
 
   // Combinar funcionários com seus turnos
-  const employeesWithShifts = employees.map(employee => {
+  const employeesWithShifts: EmployeeWithShifts[] = employees.map(employee => {
     const employeeShifts = shifts
       .filter(shift => shift.employee_id === employee.id)
-      .reduce<Record<string, Shift>>((acc, shift) => {
-        acc[shift.date] = {
-          ...shift,
-          mission: shift.mission || null
-        };
-        return acc;
-      }, {});
+      .reduce((acc, shift) => {
+        acc[shift.date] = shift
+        return acc
+      }, {} as Record<string, Shift>)
 
     return {
       ...employee,
       shifts: employeeShifts
-    } as EmployeeWithShifts;
+    }
   })
 
   // Filtrar funcionários com base no perfil do usuário e filtros aplicados
@@ -247,15 +232,15 @@ export function ReadOnlyShiftTable() {
               <th className={styles.stickyHeaderTeam}>
                 <div className="text-[10px] uppercase">Time</div>
               </th>
-              {dates.map(({ full, formatted }) => {
-                const isWeekend = [0, 6].includes(full.getDay())
+              {dates.map((date) => {
+                const isWeekend = [0, 6].includes(new Date(date).getDay())
                 return (
                   <th
-                    key={formatted}
+                    key={date}
                     className={`${styles.headerCell} ${isWeekend ? styles.weekendDay : ''}`}
                   >
-                    <div className="text-[10px] uppercase">{format(full, 'EEE', { locale: ptBR })}</div>
-                    <div className="text-[11px]">{format(full, 'dd/MM')}</div>
+                    <div className="text-[10px] uppercase">{format(new Date(date), 'EEE', { locale: ptBR })}</div>
+                    <div className="text-[11px]">{format(new Date(date), 'dd/MM')}</div>
                   </th>
                 )
               })}
@@ -280,18 +265,18 @@ export function ReadOnlyShiftTable() {
                     Time {employee.team}
                   </div>
                 </td>
-                {dates.map(({ full, formatted }) => {
-                  const isWeekend = [0, 6].includes(full.getDay())
-                  const shift = employee.shifts[formatted]
+                {dates.map((date) => {
+                  const isWeekend = [0, 6].includes(new Date(date).getDay())
+                  const shift = employee.shifts[date]
                   return (
                     <td 
-                      key={formatted} 
+                      key={date} 
                       className={`${styles.bodyCell} ${isWeekend ? styles.weekendDay : ''}`}
                     >
                       {shift && (
                         <div className="flex flex-col items-center justify-center gap-0.5">
-                          <div className={`text-lg font-bold leading-none ${getShiftColor(shift.shift_type)}`}>
-                            {shift.shift_type}
+                          <div className={`text-lg font-bold leading-none ${getShiftColor(shift)}`}>
+                            {t(`shifts.types.${shift.shift_type}`)}
                           </div>
                           {shift.mission && (
                             <div className="text-[9px] text-gray-700 font-medium whitespace-nowrap overflow-visible">

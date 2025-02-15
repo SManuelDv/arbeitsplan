@@ -29,13 +29,13 @@ const locales = {
 // Função para traduzir o nome do departamento
 function translateDepartment(department: string, t: TFunction) {
   const key = department.toLowerCase().replace(/\s+/g, '')
-  return t(`shifts.departments.${key}`, { defaultValue: department })
+  return t(`shifts.departments.${key}`)
 }
 
 // Função para traduzir o nome do time
 function translateTeam(team: string, t: TFunction) {
   const key = team.toLowerCase().replace(/\s+/g, '')
-  return t(`shifts.teams.${key}`, { defaultValue: team })
+  return t(`shifts.teams.${key}`)
 }
 
 export function ShiftManagement() {
@@ -48,10 +48,9 @@ export function ShiftManagement() {
     team: ''
   })
 
-  // Força a atualização das datas quando o idioma muda
+  // Forçar atualização quando o idioma mudar
   useEffect(() => {
     const handleLanguageChange = () => {
-      // Força a re-renderização do componente
       queryClient.invalidateQueries({ queryKey: ['shifts'] })
     }
 
@@ -145,7 +144,7 @@ export function ShiftManagement() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <p className="text-lg text-gray-600">
-          {t('auth.loginRequired')}
+          Você precisa estar autenticado para gerenciar turnos
         </p>
         <button
           onClick={() => supabase.auth.signInWithOAuth({
@@ -174,7 +173,7 @@ export function ShiftManagement() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          {t('auth.loginWithGoogle')}
+          Entrar com Google
         </button>
       </div>
     )
@@ -248,9 +247,9 @@ export function ShiftManagement() {
 
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
         <div className="px-4 py-5 sm:px-6 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
             {t('shifts.workPlan')} {t('shifts.from')} {format(dates[0].full, 'PPP', { locale: currentLocale })} {t('shifts.to')} {format(dates[dates.length - 1].full, 'PPP', { locale: currentLocale })}
-          </h1>
+          </h3>
         </div>
 
         <div className="overflow-x-auto">
@@ -268,7 +267,6 @@ export function ShiftManagement() {
                 </th>
                 {dates.map(({ full, formatted }) => {
                   const isWeekend = [0, 6].includes(full.getDay())
-                  const dayName = format(full, 'EEEE', { locale: currentLocale })
                   return (
                     <th
                       key={formatted}
@@ -299,12 +297,12 @@ export function ShiftManagement() {
                     </td>
                     <td className={styles.stickyDepartmentColumn}>
                       <div className={styles.employeeInfo}>
-                        {t(`shifts.departments.${employee.department.toLowerCase()}`)}
+                        {translateDepartment(employee.department, t)}
                       </div>
                     </td>
                     <td className={styles.stickyTeamColumn}>
                       <div className={styles.employeeInfo}>
-                        {t(`shifts.teams.${employee.team.toLowerCase()}`)}
+                        {translateTeam(employee.team, t)}
                       </div>
                     </td>
                     {dates.map(({ full, formatted }) => {
