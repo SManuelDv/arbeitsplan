@@ -37,6 +37,13 @@ const SHIFT_COLORS: Record<string, string> = {
   '⚪': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
 } as const;
 
+const SHIFT_EMOJIS: Record<string, string> = {
+  '🔴': 'morning',
+  '🟢': 'afternoon',
+  '🔵': 'night',
+  '⚪': 'off'
+} as const;
+
 function getShiftColor(shift: Shift) {
   if (!shift) {
     return SHIFT_COLORS['⚪']

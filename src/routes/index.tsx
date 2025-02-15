@@ -50,7 +50,11 @@ export const router = createBrowserRouter([
     ]
   },
   { path: '*', element: <Navigate to="/" /> }
-], routerConfig)
+], {
+  future: {
+    v7_relativeSplatPath: true
+  }
+})
 
 // Componente principal de rotas
 export function AppRoutes() {
